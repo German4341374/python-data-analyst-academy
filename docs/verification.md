@@ -21,7 +21,15 @@ Local environment: Windows, Python 3.14.4 for developer checks; Node 24.14.1; Do
 
 The first expanded Docker run had one failure while images were rebuilding. The task passed on reproduction and the complete grading/security subset then passed. Release verification serializes image build before execution. Two dependency deprecation warnings from FastAPI/Starlette's test client remain; they do not change test results.
 
-Clean-checkout and remote CI results are recorded below when actually completed. They are not inferred from the local runs.
+## Clean checkout and remote CI
+
+Clean checkout of `3f71ccf243c67bf06d00654a5f75454d30c71f21`: created a new virtual environment, installed Python dependencies and `npm ci`, installed Playwright Chromium, and built a separate Compose project with a fresh PostgreSQL volume on port 8081. Local verification passed. The complete backend suite then passed **57 tests in 281.84 seconds**; all **3 browser scenarios passed** on that clean instance. Its HTML report and final status were retained as local evidence. The temporary Compose services were stopped after verification.
+
+[GitHub Actions run 35278004710](https://github.com/German4341374/python-data-analyst-academy/actions/runs/35278004710) passed both jobs on Linux/Python 3.12/Node 22: full verification, Docker build, **57 Python tests in 161.24 seconds**, **2 Vitest tests**, **3 Playwright tests in 41.7 seconds**, plus Python and production npm dependency audits. Two earlier runs were superseded and explicitly cancelled after newer commits were pushed; their cancellation is not a test failure.
+
+The rebuilt sandbox image's complete installed Python package list was also checked with pip-audit: no known vulnerabilities found. This audit does not include operating-system packages or the Docker daemon.
+
+The Windows Unicode-path launcher successfully built and started the main application. Subsequent workspace relocation preserves source/Git state and changes only the launcher's junction location to the same drive as the project; the application code remains the version exercised above.
 
 ## Reproduction
 

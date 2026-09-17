@@ -51,7 +51,7 @@ Open **[http://localhost:8080](http://localhost:8080)**. First build downloads P
 
 On Windows use a checkout path containing ASCII characters. Some Docker Compose/Bake builds reject non-ASCII paths with `x-docker-expose-session-sharedkey`. A directory junction to the same checkout also works; no files need to be moved. WSL 2 must be installed and Docker's Linux engine running.
 
-For a Windows folder with Cyrillic characters, the included launcher creates a checked ASCII junction automatically and starts Compose:
+For a Windows folder with Cyrillic characters, the included launcher creates a checked ASCII junction on the same drive automatically and starts Compose:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start.ps1

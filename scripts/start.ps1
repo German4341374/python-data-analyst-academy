@@ -14,7 +14,7 @@ if ($projectPath -match '[^\x00-\x7F]') {
     } finally {
         $digest.Dispose()
     }
-    $buildPath = Join-Path $env:PUBLIC "academy-workspaces\academy-$hash"
+    $buildPath = Join-Path ([IO.Path]::GetPathRoot($projectPath)) "academy-workspaces\academy-$hash"
     if ($buildPath -match '[^\x00-\x7F]') {
         throw 'An ASCII checkout path is required by this Docker Bake installation.'
     }

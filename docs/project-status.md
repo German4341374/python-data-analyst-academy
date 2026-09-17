@@ -19,7 +19,8 @@ This release delivers a verified learning application and a reviewed first secti
 | Skill scoring | Implemented | Transparent 30% latest quiz correctness + 70% completed practical tasks; descriptive learning indicators, not competence certification |
 | Mistake review | Implemented | Attempt history and due-date intervals; no external reminder or notification delivery |
 | Shared public hosting | Planned | Requires dedicated runner operations, quotas, retention/deletion, TLS, secret provisioning and security review |
-| GitHub CI/release | In Progress | Workflow and local checks provided; see verification report for actual remote run/release outcome |
+| GitHub CI | Implemented | Public repository, full passing Linux verification and dependency audit; see verification report for exact run |
+| Prerelease | In Progress | v0.1 packaging; full v1 curriculum remains incomplete |
 
 No external dependency is currently marked Blocked. Email verification/recovery, historical content replay, full localization, arbitrary user dataset uploads, multi-axis plot grading, Series/multi-table task contracts, and automatic portfolio evaluation are Planned.
 
