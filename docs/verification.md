@@ -31,6 +31,8 @@ The rebuilt sandbox image's complete installed Python package list was also chec
 
 The Windows Unicode-path launcher successfully built and started the main application. Subsequent workspace relocation preserves source/Git state and changes only the launcher's junction location to the same drive as the project; the application code remains the version exercised above.
 
+After relocation, local source/frontend checks passed again from the new drive, and the launcher rebuilt and started the application with its Compose working directory on that drive. **Implementation commit `6db9207f02de839d1c8fcd874e31e41e25776242` passed both jobs in [final CI run 35279578566](https://github.com/German4341374/python-data-analyst-academy/actions/runs/35279578566)**. The verification job completed in 6m31s and dependency security in 37s. The following release-documentation commit only records this evidence and release status; application code is unchanged. GitHub currently reports a non-failing warning that the older action versions use its Node 24 compatibility override.
+
 ## Reproduction
 
 Install the README development dependencies, Docker and Playwright Chromium. Run `python scripts/verify.py --full`. It executes formatting, lint, types, content validation, local tests, frontend tests/build, Compose build, all backend tests including real sandbox abuse, and browser E2E. Docker-marked tests only skip when `RUN_DOCKER_TESTS` is not enabled; enabled verification fails if Docker is unavailable.

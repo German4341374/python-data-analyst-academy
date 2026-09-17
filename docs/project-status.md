@@ -20,7 +20,7 @@ This release delivers a verified learning application and a reviewed first secti
 | Mistake review | Implemented | Attempt history and due-date intervals; no external reminder or notification delivery |
 | Shared public hosting | Planned | Requires dedicated runner operations, quotas, retention/deletion, TLS, secret provisioning and security review |
 | GitHub CI | Implemented | Public repository, full passing Linux verification and dependency audit; see verification report for exact run |
-| Prerelease | In Progress | v0.1 packaging; full v1 curriculum remains incomplete |
+| Prerelease | Implemented | Verified v0.1.0 early-access build; [release page](https://github.com/German4341374/python-data-analyst-academy/releases/tag/v0.1.0). Full v1 curriculum remains incomplete |
 
 No external dependency is currently marked Blocked. Email verification/recovery, historical content replay, full localization, arbitrary user dataset uploads, multi-axis plot grading, Series/multi-table task contracts, and automatic portfolio evaluation are Planned.
 
