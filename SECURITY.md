@@ -4,6 +4,6 @@ v0.1 is intended for local evaluation. This project executes untrusted Python in
 
 Read [the threat model](docs/code-runner-security.md). The private broker has Docker-daemon authority. Host kernel/container-runtime vulnerabilities, privileged broker compromise and operational exhaustion remain relevant risks. Current tests demonstrate specific controls; they are not a sandbox-escape audit.
 
-Do not post credentials, personal data, or a working host-compromise exploit in a public issue. Use the repository's private vulnerability reporting mechanism if enabled. Otherwise request a private contact channel through the maintainer's GitHub profile without including exploit details. Report the commit, environment, minimal reproduction, affected trust boundary and observed impact. No response-time SLA is promised.
+Do not post credentials, personal data, or a working host-compromise exploit in a public issue. [Private vulnerability reporting is enabled](https://github.com/German4341374/python-data-analyst-academy/security/advisories/new). Report the commit, environment, minimal reproduction, affected trust boundary and observed impact. No response-time SLA is promised.
 
 Keep Docker/host components updated. Shared deployment requires unique secrets, HTTPS/secure cookies, a dedicated execution host, durable quotas/cleanup/monitoring and appropriate retention/account-recovery policies. Demo credentials in Compose are explicitly local-development defaults.

@@ -4,7 +4,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY academy ./academy
 COPY runner ./runner
-RUN pip install --no-cache-dir . && useradd --uid 10001 --create-home academy
+RUN pip install --no-cache-dir --upgrade pip==26.2.1 && pip install --no-cache-dir . && useradd --uid 10001 --create-home academy
 COPY content ./content
 COPY migrations ./migrations
 COPY alembic.ini ./
