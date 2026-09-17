@@ -1,10 +1,18 @@
+import json
+from pathlib import Path
+
 import pandas as pd
 
-from academy.content import catalog
+from academy.content import Challenge, Lesson, Question, catalog
 from academy.grading import cases, reference
 
 
 def validate():
+    for name, model in [("challenge", Challenge), ("lesson", Lesson), ("question", Question)]:
+        path = Path(__file__).resolve().parent.parent / "content" / f"{name}.schema.json"
+        assert json.loads(path.read_text(encoding="utf-8")) == model.model_json_schema(), (
+            f"Stale schema: {name}"
+        )
     data = catalog()
     all_ids = [
         x["id"]

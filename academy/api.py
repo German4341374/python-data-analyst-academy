@@ -204,6 +204,18 @@ def get_catalog():
     return public_catalog()
 
 
+@app.get("/api/projects/{identity}/dataset")
+def project_dataset(identity: str):
+    from academy.datasets import project_archive
+
+    find("projects", identity)
+    return Response(
+        project_archive(identity),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{identity}.zip"'},
+    )
+
+
 @app.get("/api/health")
 def health():
     broker = os.getenv("RUNNER_URL")
@@ -345,6 +357,38 @@ def solution(identity: str, user: Learner):
 
 class FormatCode(BaseModel):
     code: str = Field(max_length=20000)
+
+
+@app.post("/api/playground")
+def playground(body: FormatCode, user: Learner):
+    if not SUBMIT_SLOTS.acquire(blocking=False):
+        raise HTTPException(429, "Runner занят. Попробуйте позже.")
+    try:
+        broker = os.getenv("RUNNER_URL")
+        if broker:
+            response = httpx.post(
+                f"{broker}/playground",
+                headers={"X-Runner-Token": os.getenv("RUNNER_TOKEN", "")},
+                json={"code": body.code},
+                timeout=35,
+            )
+            response.raise_for_status()
+            return response.json()
+        from runner.docker_executor import execute
+
+        return execute(
+            {
+                "kind": "playground",
+                "function": "",
+                "code": body.code,
+                "data": find("challenges", "revenue-city")["visibleDataset"],
+            },
+            timeout=12,
+        )
+    except (RunnerUnavailable, httpx.HTTPError) as exc:
+        raise HTTPException(503, "Не удалось запустить Docker runner.") from exc
+    finally:
+        SUBMIT_SLOTS.release()
 
 
 @app.post("/api/format")

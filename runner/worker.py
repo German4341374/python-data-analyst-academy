@@ -1,5 +1,6 @@
 """Runs ONLY inside a disposable sandbox. Never import into the web application."""
 
+import base64
 import contextlib
 import io
 import json
@@ -43,13 +44,19 @@ def serialize(value: Any) -> dict[str, Any]:
         ]
         if any(len(line["x"]) > 1000 for line in lines):
             raise ValueError("Слишком много точек")
-        # Preview is rendered by the client from the actual inspected plot data.
+        preview = io.BytesIO()
+        value.set_size_inches(8, 4.5)
+        value.savefig(preview, format="png", dpi=90, bbox_inches="tight")
+        png = base64.b64encode(preview.getvalue()).decode("ascii")
+        if len(png) > 350000:
+            raise ValueError("Plot preview exceeds output limit")
         return {
             "type": "plot",
             "title": ax.get_title(),
             "xlabel": ax.get_xlabel(),
             "ylabel": ax.get_ylabel(),
             "lines": lines,
+            "image": png,
         }
     if isinstance(value, np.ndarray):
         if value.size > 1000:
@@ -85,11 +92,20 @@ def main() -> None:
                     )
                     value = pd.read_sql_query(payload["code"], con)
             else:
-                namespace: dict[str, Any] = {"pd": pd, "np": np, "__name__": "__student__"}
+                namespace: dict[str, Any] = {
+                    "pd": pd,
+                    "np": np,
+                    "df": df,
+                    "__name__": "__student__",
+                }
+                if len(df) == 1 and {"price", "quantity"} <= set(df.columns):
+                    namespace.update(
+                        price=float(df.iloc[0]["price"]), quantity=int(df.iloc[0]["quantity"])
+                    )
                 exec(compile(payload["code"], "solution.py", "exec"), namespace)
                 value = (
                     namespace[payload["function"]](df)
-                    if payload["kind"] != "playground"
+                    if payload["kind"] != "playground" and payload["function"]
                     else namespace.get("result")
                 )
             try:

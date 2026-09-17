@@ -1,0 +1,173 @@
+{
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "lessonId": {
+      "title": "Lessonid",
+      "type": "string"
+    },
+    "topic": {
+      "title": "Topic",
+      "type": "string"
+    },
+    "library": {
+      "title": "Library",
+      "type": "string"
+    },
+    "difficulty": {
+      "enum": [
+        "Beginner",
+        "Easy",
+        "Junior",
+        "Final Project"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "dataframe",
+        "scalar",
+        "array",
+        "plot",
+        "sql"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "function": {
+      "title": "Function",
+      "type": "string"
+    },
+    "functionSignature": {
+      "title": "Functionsignature",
+      "type": "string"
+    },
+    "inputSchema": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Inputschema",
+      "type": "object"
+    },
+    "outputSchema": {
+      "title": "Outputschema",
+      "type": "string"
+    },
+    "ordering": {
+      "title": "Ordering",
+      "type": "string"
+    },
+    "immutable": {
+      "default": true,
+      "title": "Immutable",
+      "type": "boolean"
+    },
+    "starterCode": {
+      "title": "Startercode",
+      "type": "string"
+    },
+    "visibleDataset": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Visibledataset",
+      "type": "array"
+    },
+    "visibleTests": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Visibletests",
+      "type": "array"
+    },
+    "hiddenDatasetGenerators": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Hiddendatasetgenerators",
+      "type": "array"
+    },
+    "hints": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Hints",
+      "type": "array"
+    },
+    "solution": {
+      "title": "Solution",
+      "type": "string"
+    },
+    "explanation": {
+      "title": "Explanation",
+      "type": "string"
+    },
+    "timeLimit": {
+      "default": 10,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Timelimit",
+      "type": "integer"
+    },
+    "memoryLimit": {
+      "default": 256,
+      "maximum": 512,
+      "minimum": 128,
+      "title": "Memorylimit",
+      "type": "integer"
+    },
+    "rtol": {
+      "default": 1e-06,
+      "title": "Rtol",
+      "type": "number"
+    },
+    "atol": {
+      "default": 1e-08,
+      "title": "Atol",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "description",
+    "lessonId",
+    "topic",
+    "library",
+    "difficulty",
+    "kind",
+    "function",
+    "functionSignature",
+    "inputSchema",
+    "outputSchema",
+    "ordering",
+    "starterCode",
+    "visibleDataset",
+    "visibleTests",
+    "hiddenDatasetGenerators",
+    "hints",
+    "solution",
+    "explanation"
+  ],
+  "title": "Challenge",
+  "type": "object"
+}

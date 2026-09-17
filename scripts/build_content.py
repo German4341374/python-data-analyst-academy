@@ -747,6 +747,70 @@ challenge(
 
 
 def write():
+    from curriculum import extend
+
+    projects = extend(lesson, quiz, challenge, sales, sales_schema)
+    challenge(
+        "python-revenue",
+        "Первая выручка на Python",
+        "python-start",
+        "Python",
+        "scalar",
+        "",
+        "В редактор уже переданы две переменные: price — цена единицы, quantity — количество. Сохраните их произведение в переменную result. Выведите результат через print(result). Не задавайте price и quantity вручную: при проверке они изменятся.",
+        {"price": "float >= 0 · цена единицы, EUR", "quantity": "integer > 0 · количество"},
+        "result: число · price × quantity",
+        "# price и quantity уже доступны\nresult = 0\nprint(result)\n",
+        "result = price * quantity\nprint(result)\n",
+        [
+            "Выручка равна цене одной единицы, умноженной на количество.",
+            "Умножение в Python записывается символом *.",
+            "Напишите result = price * quantity, затем print(result).",
+        ],
+        [{"price": 12.5, "quantity": 4}],
+        hidden=["different-numbers", "zero-price", "decimals"],
+        difficulty="Beginner",
+    )
+    challenges[-1]["functionSignature"] = "result = ..."
+    lessons[0]["challengeIds"] = ["python-revenue"]
+    for current in lessons:
+        current["module"] = (
+            current["module"]
+            .replace("02 · pandas", "03 · pandas")
+            .replace("03 · NumPy", "02 · NumPy")
+        )
+    lessons.sort(key=lambda current: current["module"])
+    next(c for c in challenges if c["id"] == "conversion")["hiddenDatasetGenerators"] += [
+        "zero-visits",
+        "different-funnel",
+    ]
+    exams = [
+        {
+            "id": identity,
+            "title": title,
+            "questionIds": [q["id"] for q in questions if q["lessonId"] in lesson_ids],
+            "challengeIds": task_ids,
+        }
+        for identity, title, lesson_ids, task_ids in [
+            ("python-check", "Python", ["python-start", "functions"], ["conversion"]),
+            ("numpy-check", "NumPy", ["numpy"], ["numpy-mask"]),
+            (
+                "pandas-check",
+                "pandas",
+                ["pandas-intro", "pandas-filtering", "groupby"],
+                ["filter-orders", "revenue-city"],
+            ),
+            (
+                "cleaning-check",
+                "Очистка",
+                ["cleaning", "joins-dates"],
+                ["clean-cities", "fill-missing"],
+            ),
+            ("plot-check", "Графики", ["visualization"], ["monthly-plot"]),
+            ("stats-check", "Статистика", ["eda", "statistics"], ["median"]),
+            ("sql-check", "SQL", ["sql"], ["sql-revenue"]),
+        ]
+    ]
     path = ROOT / "content" / "catalog.json"
     path.parent.mkdir(exist_ok=True)
     path.write_text(
@@ -756,8 +820,8 @@ def write():
                 lessons=lessons,
                 questions=questions,
                 challenges=challenges,
-                projects=[],
-                exams=[],
+                projects=projects,
+                exams=exams,
             ),
             ensure_ascii=False,
             indent=2,

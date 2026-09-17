@@ -16,6 +16,28 @@ class Job(BaseModel):
     caseIndex: int = Field(ge=0, le=20)
 
 
+class PlaygroundJob(BaseModel):
+    code: str = Field(max_length=20000)
+
+
+@app.post("/playground")
+def playground(job: PlaygroundJob, x_runner_token: str = Header(default="")):
+    authorize(x_runner_token)
+    challenge = item("challenges", "revenue-city")
+    try:
+        return execute(
+            {
+                "kind": "playground",
+                "function": "",
+                "code": job.code,
+                "data": challenge["visibleDataset"],
+            },
+            timeout=12,
+        )
+    except RunnerUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
 def authorize(token: str) -> None:
     expected = os.getenv("RUNNER_TOKEN", "")
     if not expected or not hmac.compare_digest(token, expected):

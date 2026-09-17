@@ -1,6 +1,6 @@
 # Content format
 
-`content/catalog.json` is the runtime artifact. `scripts/build_content.py` is the editable authoring source. Run `python scripts/build_content.py`, then `python scripts/validate_content.py`. Pydantic models in `academy/content.py` define the schema; exported JSON Schema is generated during verification.
+`content/catalog.json` is the runtime artifact. `scripts/build_content.py` and `scripts/curriculum.py` are the editable authoring sources. Run `python scripts/build_content.py`, then `python scripts/validate_content.py`. Pydantic models in `academy/content.py` define the schema; run `python scripts/export_schemas.py` to update the committed JSON Schema files.
 
 Lessons include ID/version, module/topic/level, time estimate, summary, objectives, explained sections with runnable examples and linked challenges. Questions include lesson/topic, answer options, correct index, a distinct explanation per option and an example. Learner API omits answers until an attempt is made.
 

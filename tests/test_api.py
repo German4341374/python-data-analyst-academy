@@ -1,3 +1,5 @@
+import pytest
+
 from academy.content import item
 
 
@@ -93,6 +95,7 @@ def test_runner_unavailable_does_not_award_progress(client, monkeypatch):
     assert client.get("/api/progress").json()["completed"]["challenge"] == []
 
 
+@pytest.mark.docker
 def test_real_submission_progress(client, docker_ready):
     c = item("challenges", "revenue-city")
     result = client.post(

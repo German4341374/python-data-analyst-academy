@@ -38,7 +38,7 @@
         }
       ],
       "challengeIds": [
-        "conversion"
+        "python-revenue"
       ]
     },
     {
@@ -82,10 +82,50 @@
       ]
     },
     {
+      "id": "numpy",
+      "version": 1,
+      "title": "NumPy: думать массивами",
+      "module": "02 · NumPy",
+      "topic": "NumPy",
+      "level": 3,
+      "minutes": 30,
+      "summary": "Создаём массивы, выбираем элементы маской и считаем без лишних циклов.",
+      "objectives": [
+        "Понимать shape, dtype и axis",
+        "Использовать маски и векторные операции",
+        "Работать с NaN осознанно"
+      ],
+      "sections": [
+        {
+          "title": "Массив вместо списка",
+          "text": "ndarray хранит элементы одного типа. У списка [1, 2] * 2 получатся четыре элемента, а NumPy умножит каждый элемент. dtype определяет представление чисел, shape — размеры по осям, ndim — число осей, size — общее количество элементов.",
+          "code": "import numpy as np\nprices = np.array([10.0, 20.0, 30.0])\nprint(prices * 1.2)\nprint(prices.shape, prices.dtype, prices.ndim, prices.size)"
+        },
+        {
+          "title": "Выбор без цикла",
+          "text": "Сравнение массива с числом возвращает булев массив той же формы. Передайте его в [] для фильтрации. Срез [1:3] включает позицию 1, но не 3. Векторные операции удобно выражают одну операцию над всеми наблюдениями; скорость зависит от размера и типа задачи.",
+          "code": "values = np.array([5, 12, 20, 7])\nselected = values[values > 10]\nprint(selected * 2)  # [24 40]"
+        },
+        {
+          "title": "Оси и broadcasting",
+          "text": "У таблицы ось 0 проходит по строкам, ось 1 — по колонкам. sum(axis=0) суммирует строки и оставляет сумму для каждой колонки. Broadcasting позволяет совместимым формам участвовать в операции; размер каждой оси с конца должен совпадать или быть 1.",
+          "code": "a = np.array([[1, 2], [3, 4]])\nprint(a.sum(axis=0))  # [4 6]\nprint(a.sum(axis=1))  # [3 7]\nprint(a + np.array([10, 20]))"
+        },
+        {
+          "title": "Пропуск не равен самому себе",
+          "text": "NaN — специальное числовое значение пропуска. np.nan == np.nan даёт False. Для проверки используйте np.isnan. nanmean и nanmedian игнорируют NaN, но при полностью пустом массиве осмысленной оценки нет. Всегда оговаривайте политику пропусков.",
+          "code": "a = np.array([10.0, np.nan, 30.0])\nprint(np.isnan(a))\nprint(np.nanmean(a))  # 20.0"
+        }
+      ],
+      "challengeIds": [
+        "numpy-mask"
+      ]
+    },
+    {
       "id": "pandas-intro",
       "version": 1,
       "title": "Знакомство с DataFrame",
-      "module": "02 · pandas",
+      "module": "03 · pandas",
       "topic": "Pandas",
       "level": 4,
       "minutes": 20,
@@ -125,7 +165,7 @@
       "id": "pandas-filtering",
       "version": 1,
       "title": "Фильтрация данных",
-      "module": "02 · pandas",
+      "module": "03 · pandas",
       "topic": "Pandas",
       "level": 4,
       "minutes": 25,
@@ -166,7 +206,7 @@
       "id": "groupby",
       "version": 1,
       "title": "Выручка по городам",
-      "module": "02 · pandas",
+      "module": "03 · pandas",
       "topic": "Data Transformation",
       "level": 4,
       "minutes": 30,
@@ -202,6 +242,248 @@
         "revenue-city",
         "aov",
         "customer-summary"
+      ]
+    },
+    {
+      "id": "cleaning",
+      "version": 1,
+      "title": "Качество данных: пропуски и дубликаты",
+      "module": "04 · Подготовка данных",
+      "topic": "Data Cleaning",
+      "level": 5,
+      "minutes": 35,
+      "summary": "Отличаем плохие данные от необычных. Фиксируем правила очистки до вычисления метрик.",
+      "objectives": [
+        "Проверять пропуски и дубликаты",
+        "Нормализовать текст",
+        "Объяснять выбранную политику очистки"
+      ],
+      "sections": [
+        {
+          "title": "Сначала аудит",
+          "text": "Для каждой колонки проверьте тип, долю пропусков, допустимый диапазон и уникальность ключа. Одна строка в примере — измерение. Не удаляйте строку только потому, что одно из полей отсутствует: решение зависит от бизнес-вопроса.",
+          "code": "print(df.dtypes)\nprint(df.isna().mean())\nprint(df.duplicated().sum())"
+        },
+        {
+          "title": "Обработка пропусков — допущение",
+          "text": "fillna заменяет пропуски, dropna удаляет строки по заданным полям. Среднее не является универсальной заменой: пропуск выручки может означать отменённый заказ, а не типичную продажу. В задаче с value используем медиану непустых значений как явно заданное учебное правило.",
+          "code": "median = df[\"value\"].median()\nresult = df.assign(value=df[\"value\"].fillna(median))"
+        },
+        {
+          "title": "Текст и повторные записи",
+          "text": "Riga, RIGA и ' Riga ' могут обозначать один город. Сначала strip убирает внешние пробелы, затем title нормализует регистр. Только после нормализации ищите дубликаты. Повторяющаяся сумма не доказывает повтор заказа: обычно сравнивают бизнес-ключ order_id.",
+          "code": "clean = df.assign(city=df[\"city\"].str.strip().str.title())\nclean = clean.drop_duplicates()"
+        },
+        {
+          "title": "Без молчаливой потери данных",
+          "text": "to_numeric(errors='coerce') превращает некорректные строки в NaN, поэтому после преобразования посчитайте новые пропуски. Тип Int64 поддерживает отсутствующие целые. Храните исходные данные отдельно и возвращайте новую таблицу, чтобы очистку можно было повторить.",
+          "code": "amount = pd.to_numeric(df[\"amount\"], errors=\"coerce\")\nprint(amount.isna().sum())\nclean = df.assign(amount=amount)"
+        }
+      ],
+      "challengeIds": [
+        "clean-cities",
+        "fill-missing"
+      ]
+    },
+    {
+      "id": "joins-dates",
+      "version": 1,
+      "title": "Объединение таблиц и даты",
+      "module": "04 · Подготовка данных",
+      "topic": "Data Transformation",
+      "level": 5,
+      "minutes": 35,
+      "summary": "Соединяем покупателей и заказы, проверяем кратность связей и собираем временные срезы.",
+      "objectives": [
+        "Выбирать ключ и тип merge",
+        "Проверять validate и indicator",
+        "Разбирать даты до группировки"
+      ],
+      "sections": [
+        {
+          "title": "Один покупатель — много заказов",
+          "text": "У таблицы customers должен быть уникальный customer_id. В orders он повторяется, потому что человек может покупать несколько раз. left merge сохраняет заказы даже при отсутствии карточки клиента. validate='many_to_one' защищает от случайного размножения строк справа.",
+          "code": "joined = orders.merge(customers, on=\"customer_id\", how=\"left\", validate=\"many_to_one\", indicator=True)\nprint(joined[\"_merge\"].value_counts())"
+        },
+        {
+          "title": "Почему строк стало больше",
+          "text": "Если один ключ встречается 2 раза слева и 3 раза справа, merge создаст 6 комбинаций. Это может раздуть выручку. До и после соединения проверьте число строк, уникальность ключей и контрольную сумму метрики. Не лечите неверный join бездумным drop_duplicates.",
+          "code": "assert customers[\"customer_id\"].is_unique\nassert len(joined) == len(orders)\nassert joined[\"revenue\"].sum() == orders[\"revenue\"].sum()"
+        },
+        {
+          "title": "Дата — не просто текст",
+          "text": "pd.to_datetime преобразует строки в datetime. errors='coerce' отмечает нераспознанные значения как NaT; обязательно изучите их. После разбора доступны dt.year, dt.month и временные интервалы. Для неоднозначных дат лучше задать format явно.",
+          "code": "dates = pd.to_datetime(orders[\"order_date\"], format=\"%Y-%m-%d\", errors=\"coerce\")\nprint(dates.isna().sum())\norders = orders.assign(order_date=dates)"
+        },
+        {
+          "title": "Месяцы и формы таблиц",
+          "text": "Группируйте по году-месяцу, а не только номеру месяца, иначе смешаются разные годы. pivot_table делает сводную таблицу, melt возвращает длинную форму, concat склеивает однотипные таблицы. merge соединяет разные сущности по ключам.",
+          "code": "monthly = orders.assign(month=orders.order_date.dt.to_period(\"M\").astype(str))\nmonthly = monthly.groupby(\"month\", as_index=False).agg(revenue=(\"revenue\", \"sum\"))"
+        }
+      ],
+      "challengeIds": [
+        "customer-summary"
+      ]
+    },
+    {
+      "id": "eda",
+      "version": 1,
+      "title": "EDA: сначала вопросы, затем выводы",
+      "module": "05 · Исследование данных",
+      "topic": "EDA",
+      "level": 6,
+      "minutes": 30,
+      "summary": "Проверяем распределения и выбросы, выбираем устойчивые сводные показатели.",
+      "objectives": [
+        "Построить последовательность исследования",
+        "Различать среднее и медиану",
+        "Не путать корреляцию с причинностью"
+      ],
+      "sections": [
+        {
+          "title": "Начните с определения наблюдения",
+          "text": "Уточните период, единицы измерения, способ сбора и то, что означает строка. Затем исследуйте shape, dtypes, пропуски, повторные ключи и диапазоны. Первые строки и describe не заменяют этот аудит. Запишите вопросы до построения графиков.",
+          "code": "print(df.shape)\nprint(df.dtypes)\nprint(df.isna().mean())\nprint(df.describe(include=\"all\"))"
+        },
+        {
+          "title": "Типичное значение",
+          "text": "Среднее использует величину каждого наблюдения. Медиана — центральное значение отсортированных данных; у чётного количества — среднее двух центральных. В наборе [10, 12, 13, 15, 500] среднее 110, медиана 13. Выбирайте показатель по вопросу, а не по привычке.",
+          "code": "salaries = pd.Series([10, 12, 13, 15, 500])\nprint(salaries.mean(), salaries.median())"
+        },
+        {
+          "title": "Выброс — повод разобраться",
+          "text": "IQR = Q3 − Q1. Значения ниже Q1 − 1.5 IQR и выше Q3 + 1.5 IQR можно пометить для исследования. Это эвристика, не доказательство ошибки. Крупная покупка может быть реальной; её автоматическое удаление исказит выручку.",
+          "code": "q1, q3 = df[\"value\"].quantile([0.25, 0.75])\niqr = q3 - q1\nsuspicious = df.loc[(df.value < q1 - 1.5 * iqr) | (df.value > q3 + 1.5 * iqr)]"
+        },
+        {
+          "title": "Связь не доказывает причину",
+          "text": "Pearson измеряет линейную связь, Spearman — связь рангов. Корреляция может возникнуть из-за сезонности, третьей переменной или способа отбора. Для вывода о причинности нужен дизайн исследования, например корректная рандомизация.",
+          "code": "print(df[[\"visits\", \"purchases\"]].corr(method=\"spearman\"))\n# Изучите контекст, пропуски и объём выборки до вывода."
+        }
+      ],
+      "challengeIds": [
+        "median"
+      ]
+    },
+    {
+      "id": "visualization",
+      "version": 1,
+      "title": "График, который отвечает на вопрос",
+      "module": "06 · Визуализация",
+      "topic": "Visualization",
+      "level": 7,
+      "minutes": 35,
+      "summary": "Строим динамику выручки с Matplotlib и знакомимся с Seaborn без лишнего декора.",
+      "objectives": [
+        "Выбрать график по аналитическому вопросу",
+        "Настроить Figure и Axes",
+        "Привязать точки и подписи к данным"
+      ],
+      "sections": [
+        {
+          "title": "Форма следует вопросу",
+          "text": "Линия показывает изменение во времени, столбцы — сравнение категорий, гистограмма — распределение, scatter — связь двух чисел, boxplot — распределение и возможные выбросы. Круговая диаграмма плохо подходит для множества близких долей. Не выбирайте её автоматически.",
+          "code": "# Время → line\n# Категории → bar\n# Распределение → hist\n# Связь → scatter"
+        },
+        {
+          "title": "Figure и Axes",
+          "text": "Figure — весь рисунок, Axes — область графика. plt.subplots() возвращает оба объекта. Укажите заголовок, единицы измерения и обе оси. В проверяемой задаче верните Figure. Не вызывайте plt.show(): приложение само покажет результат.",
+          "code": "import matplotlib.pyplot as plt\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(monthly[\"month\"], monthly[\"revenue\"])\nax.set(title=\"Monthly revenue\", xlabel=\"Month\", ylabel=\"Revenue, EUR\")"
+        },
+        {
+          "title": "Данные управляют подписями",
+          "text": "Перед графиком агрегируйте выручку по месяцу и отсортируйте месяцы. Не набирайте вручную ['Jan', 'Feb', 'Mar']: в другой таблице могут быть другие даты и число точек. Для сравнения высот столбцов начинайте количественную ось с нуля, иначе разница может выглядеть преувеличенной.",
+          "code": "monthly = (df.groupby(\"month\", as_index=False)\n    .agg(revenue=(\"revenue\", \"sum\"))\n    .sort_values(\"month\"))\nax.plot(monthly.month, monthly.revenue)"
+        },
+        {
+          "title": "Seaborn поверх Matplotlib",
+          "text": "Seaborn удобен для статистических графиков из длинной таблицы. histplot показывает частоты, boxplot — распределения по группам, scatterplot — связь, heatmap — матрицу. barplot по умолчанию агрегирует данные, поэтому осознанно задавайте estimator и errorbar.",
+          "code": "import seaborn as sns\n\nsns.histplot(data=df, x=\"revenue\", bins=20)\n# Для готовых итогов по категориям:\n# sns.barplot(data=summary, x=\"city\", y=\"revenue\", errorbar=None)"
+        }
+      ],
+      "challengeIds": [
+        "monthly-plot"
+      ]
+    },
+    {
+      "id": "statistics",
+      "version": 1,
+      "title": "Статистика без ложной уверенности",
+      "module": "07 · Статистика",
+      "topic": "Statistics",
+      "level": 8,
+      "minutes": 40,
+      "summary": "Выборка, вариативность и A/B-тест: от расчёта к осторожной интерпретации.",
+      "objectives": [
+        "Различать генеральную совокупность и выборку",
+        "Интерпретировать p-value и доверительный интервал",
+        "Различать абсолютный и относительный прирост"
+      ],
+      "sections": [
+        {
+          "title": "Данные — лишь часть картины",
+          "text": "Генеральная совокупность — все интересующие нас объекты; выборка — наблюдаемая часть. Систематический отбор не исправляется большим размером. Если анализируем только платящих клиентов, вывод нельзя автоматически переносить на всех посетителей.",
+          "code": "print(df[\"segment\"].value_counts(normalize=True, dropna=False))\n# Проверьте, какие группы вообще попали в данные."
+        },
+        {
+          "title": "Разброс и единицы измерения",
+          "text": "Дисперсия измеряет средний квадрат отклонения, стандартное отклонение возвращается к исходным единицам. pandas std() по умолчанию использует ddof=1, NumPy std() — ddof=0. Указывайте смысл оценки и параметр явно. Процентили характеризуют положение относительно распределения.",
+          "code": "import numpy as np\nx = np.array([10, 12, 14, 16])\nprint(np.std(x, ddof=1))\nprint(np.percentile(x, [25, 50, 75]))"
+        },
+        {
+          "title": "p-value — не вероятность истинности гипотезы",
+          "text": "Нулевая гипотеза задаёт модель отсутствия эффекта. p-value — вероятность получить столь же или более экстремальный результат при этой модели и её допущениях. p < 0.05 не доказывает бизнес-ценность и не сообщает вероятность, что гипотеза ложна. Для интервала 95% интерпретируется долгосрочное покрытие процедуры.",
+          "code": "from scipy.stats import ttest_ind\n# Пример для независимых числовых наблюдений:\nstatistic, p_value = ttest_ind(control, treatment, equal_var=False)\n# Проверьте дизайн, независимость и применимость теста."
+        },
+        {
+          "title": "A/B: размер эффекта прежде вывода",
+          "text": "Рост конверсии с 10% до 12% — +2 процентных пункта и +20% относительно контроля. До запуска задайте метрику, единицу рандомизации и правило остановки. Повторно подглядывать и останавливать при p < 0.05 нельзя без подходящего последовательного дизайна. ttest в примере не является готовым универсальным тестом конверсии.",
+          "code": "control_rate = 0.10\ntreatment_rate = 0.12\nabsolute = treatment_rate - control_rate\nrelative = absolute / control_rate\nprint(absolute, relative)"
+        }
+      ],
+      "challengeIds": [
+        "conversion",
+        "median"
+      ]
+    },
+    {
+      "id": "sql",
+      "version": 1,
+      "title": "SQL и pandas: один анализ, два инструмента",
+      "module": "08 · SQL + Python",
+      "topic": "SQL",
+      "level": 9,
+      "minutes": 35,
+      "summary": "Фильтруем и агрегируем в SQLite, затем переносим результат в pandas.",
+      "objectives": [
+        "Писать SELECT, WHERE, GROUP BY и ORDER BY",
+        "Различать WHERE и HAVING",
+        "Проверять запрос на другой базе"
+      ],
+      "sections": [
+        {
+          "title": "Декларативный запрос",
+          "text": "SQL описывает нужный результат. SELECT выбирает выражения, FROM — таблицу, WHERE — строки. Встроенная таблица orders имеет ту же схему, что sample DataFrame. Запрос должен зависеть от колонок, а не от городов из примера.",
+          "code": "SELECT city, quantity, price\nFROM orders\nWHERE price > 100 AND quantity >= 2\nORDER BY price DESC;"
+        },
+        {
+          "title": "Группы и фильтры",
+          "text": "GROUP BY собирает строки по ключу, SUM вычисляет итог. WHERE фильтрует строки до агрегации; HAVING — группы после. Дайте вычисляемой колонке имя через AS. Чтобы результат был детерминирован, укажите сортировку и правило равных итогов.",
+          "code": "SELECT city, SUM(quantity * price) AS revenue\nFROM orders\nGROUP BY city\nORDER BY revenue DESC, city ASC;"
+        },
+        {
+          "title": "SQL из Python",
+          "text": "В локальном анализе sqlite3 работает без сервера, pd.read_sql_query возвращает DataFrame. Для PostgreSQL можно использовать SQLAlchemy engine. Значения пользовательского ввода передавайте параметрами, а не склейкой строк: placeholders зависят от драйвера.",
+          "code": "import sqlite3\nwith sqlite3.connect(\"sales.db\") as con:\n    result = pd.read_sql_query(\n        \"SELECT * FROM orders WHERE price > ?\", con, params=(100,)\n    )"
+        },
+        {
+          "title": "Одинаковая схема, другие данные",
+          "text": "В учебной проверке SQL выполняется на видимой базе и на новых изолированных SQLite-базах. SELECT 'Riga', 480 может совпасть с примером, но не анализирует таблицу. Изменения базы запрещены: используйте SELECT или WITH, не DROP/UPDATE/ATTACH.",
+          "code": "SELECT city, COUNT(*) AS line_items\nFROM orders\nGROUP BY city\nHAVING COUNT(*) >= 2;"
+        }
+      ],
+      "challengeIds": [
+        "sql-revenue"
       ]
     }
   ],
@@ -676,6 +958,659 @@
         "assign принимает вычисленные Series."
       ],
       "example": "result = df.assign(revenue=df.quantity * df.price)"
+    },
+    {
+      "id": "numpy-q1",
+      "version": 1,
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "prompt": "Что даст np.array([1, 2]) * 2?",
+      "options": [
+        "[1, 2, 1, 2]",
+        "Массив [2, 4]",
+        "Ошибку"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Так ведёт себя список Python, а не ndarray.",
+        "NumPy умножает каждый элемент на 2.",
+        "Массив и скаляр совместимы через broadcasting."
+      ],
+      "example": "np.array([1, 2]) * 2"
+    },
+    {
+      "id": "numpy-q2",
+      "version": 1,
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "prompt": "У массива shape=(3, 4). Чему равен size?",
+      "options": [
+        "3",
+        "4",
+        "12"
+      ],
+      "correct": 2,
+      "explanations": [
+        "3 — размер первой оси.",
+        "4 — размер второй оси.",
+        "Всего 3 × 4 = 12 элементов."
+      ],
+      "example": "a = np.zeros((3, 4))\nprint(a.size)"
+    },
+    {
+      "id": "numpy-q3",
+      "version": 1,
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "prompt": "Что вернёт a.sum(axis=0) для [[1,2],[3,4]]?",
+      "options": [
+        "[4, 6]",
+        "[3, 7]",
+        "10"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Складываем строки по каждой колонке.",
+        "Это сумма по axis=1.",
+        "Это сумма без указания оси."
+      ],
+      "example": "np.array([[1,2],[3,4]]).sum(axis=0)"
+    },
+    {
+      "id": "numpy-q4",
+      "version": 1,
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "prompt": "Как найти пропуски в числовом массиве?",
+      "options": [
+        "a == np.nan",
+        "np.isnan(a)",
+        "a is None"
+      ],
+      "correct": 1,
+      "explanations": [
+        "NaN не равен самому себе.",
+        "isnan проверяет каждый элемент.",
+        "Так проверяется идентичность всего объекта, а не элементы."
+      ],
+      "example": "np.isnan(np.array([1.0, np.nan]))"
+    },
+    {
+      "id": "numpy-q5",
+      "version": 1,
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "prompt": "Как выбрать элементы a больше 10?",
+      "options": [
+        "a[a > 10]",
+        "a > 10",
+        "a[10]"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Маска передаётся в индексирование массива.",
+        "Это только маска из True/False.",
+        "Это один элемент с индексом 10."
+      ],
+      "example": "a = np.array([5, 12, 20])\nprint(a[a > 10])"
+    },
+    {
+      "id": "cleaning-q1",
+      "version": 1,
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "prompt": "Как посчитать долю пропусков в каждой колонке?",
+      "options": [
+        "df.isna().mean()",
+        "df == None",
+        "df.mean()"
+      ],
+      "correct": 0,
+      "explanations": [
+        "True трактуется как 1, среднее маски даёт долю пропусков.",
+        "Для пропусков pandas используйте isna().",
+        "Среднее значений не сообщает долю пропусков."
+      ],
+      "example": "missing_ratio = df.isna().mean()"
+    },
+    {
+      "id": "cleaning-q2",
+      "version": 1,
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "prompt": "Можно ли всегда заменять NaN средним?",
+      "options": [
+        "Да, это стандарт",
+        "Нет, нужна политика по смыслу данных"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Так можно исказить распределение и скрыть систематическую проблему.",
+        "Способ зависит от причин пропусков и цели анализа."
+      ],
+      "example": "print(df.isna().sum())  # сначала изучите проблему"
+    },
+    {
+      "id": "cleaning-q3",
+      "version": 1,
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "prompt": "Какая последовательность убирает пробелы и унифицирует регистр города?",
+      "options": [
+        ".str.strip().str.title()",
+        ".sum().mean()",
+        ".dropna().sum()"
+      ],
+      "correct": 0,
+      "explanations": [
+        "strip убирает внешние пробелы, title приводит слова к единому регистру.",
+        "Агрегации не нормализуют строки.",
+        "Удаление пропусков и суммирование не исправляют названия."
+      ],
+      "example": "df.city.str.strip().str.title()"
+    },
+    {
+      "id": "cleaning-q4",
+      "version": 1,
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "prompt": "Два заказа имеют одинаковую сумму. Удаляем один?",
+      "options": [
+        "Да",
+        "Нет, сначала проверяем ключ заказа"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Одинаковая сумма может быть у разных покупок.",
+        "Дубликат определяется контрактом и бизнес-ключом, а не одной метрикой."
+      ],
+      "example": "df.duplicated(subset=['order_id'])"
+    },
+    {
+      "id": "cleaning-q5",
+      "version": 1,
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "prompt": "Что делает to_numeric(errors='coerce') с 'unknown'?",
+      "options": [
+        "Возвращает 0",
+        "Превращает в NaN",
+        "Оставляет строку"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Ноль был бы выдуманным измерением.",
+        "Некорректное значение станет пропуском; посчитайте их после конвертации.",
+        "coerce не сохраняет нечисловую строку."
+      ],
+      "example": "pd.to_numeric(pd.Series(['12', 'unknown']), errors='coerce')"
+    },
+    {
+      "id": "joins-dates-q1",
+      "version": 1,
+      "lessonId": "joins-dates",
+      "topic": "Data Transformation",
+      "prompt": "Ключ повторяется 2 раза слева и 3 справа. Сколько строк даст merge по этому ключу?",
+      "options": [
+        "2",
+        "3",
+        "6"
+      ],
+      "correct": 2,
+      "explanations": [
+        "Каждая из двух строк соединяется с каждой правой.",
+        "Правые строки соединяются с каждой левой.",
+        "Получается 2 × 3 комбинации."
+      ],
+      "example": "# many-to-many может размножать метрики"
+    },
+    {
+      "id": "joins-dates-q2",
+      "version": 1,
+      "lessonId": "joins-dates",
+      "topic": "Data Transformation",
+      "prompt": "Как проверить уникальность ключа в правой таблице merge?",
+      "options": [
+        "validate='many_to_one'",
+        "how='outer'",
+        "sort=True"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Эта проверка допускает повторы слева, но требует уникальности справа.",
+        "outer определяет сохранение несовпавших строк, не кратность.",
+        "Сортировка не проверяет уникальность."
+      ],
+      "example": "orders.merge(customers, on='customer_id', validate='many_to_one')"
+    },
+    {
+      "id": "joins-dates-q3",
+      "version": 1,
+      "lessonId": "joins-dates",
+      "topic": "Data Transformation",
+      "prompt": "Как сохранить заказы без найденного покупателя?",
+      "options": [
+        "inner merge",
+        "left merge от orders",
+        "Удалить такие заказы заранее"
+      ],
+      "correct": 1,
+      "explanations": [
+        "inner оставляет только совпавшие ключи.",
+        "left сохраняет все строки левой таблицы orders.",
+        "Так вы потеряете заказы и исказите отчёт."
+      ],
+      "example": "orders.merge(customers, how='left', on='customer_id', indicator=True)"
+    },
+    {
+      "id": "joins-dates-q4",
+      "version": 1,
+      "lessonId": "joins-dates",
+      "topic": "Data Transformation",
+      "prompt": "Почему groupby(dt.month) опасен для двух лет?",
+      "options": [
+        "Месяц не является числом",
+        "Январи разных лет попадут в одну группу",
+        "groupby не умеет даты"
+      ],
+      "correct": 1,
+      "explanations": [
+        "dt.month как раз возвращает числовой месяц.",
+        "Нужно сохранить год и месяц, например to_period('M').",
+        "groupby работает с разобранными датами."
+      ],
+      "example": "df.date.dt.to_period('M')"
+    },
+    {
+      "id": "joins-dates-q5",
+      "version": 1,
+      "lessonId": "joins-dates",
+      "topic": "Data Transformation",
+      "prompt": "Для чего indicator=True?",
+      "options": [
+        "Показывает происхождение строк после merge",
+        "Ускоряет все join",
+        "Удаляет пропуски"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Колонка _merge различает left_only, right_only и both.",
+        "Это диагностическая колонка, не гарантия ускорения.",
+        "indicator не удаляет строки."
+      ],
+      "example": "joined['_merge'].value_counts()"
+    },
+    {
+      "id": "eda-q1",
+      "version": 1,
+      "lessonId": "eda",
+      "topic": "EDA",
+      "prompt": "Среднее зарплат резко выше медианы. Возможная причина?",
+      "options": [
+        "Несколько очень высоких зарплат",
+        "Медиана всегда неверна",
+        "В данных точно ошибка"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Большие значения тянут среднее вверх; проверьте распределение.",
+        "Медиана корректно описывает центр по порядку.",
+        "Необычность не доказывает ошибку данных."
+      ],
+      "example": "pd.Series([10, 12, 13, 15, 500]).agg(['mean', 'median'])"
+    },
+    {
+      "id": "eda-q2",
+      "version": 1,
+      "lessonId": "eda",
+      "topic": "EDA",
+      "prompt": "Медиана [10, 20, 30, 40] равна…",
+      "options": [
+        "20",
+        "25",
+        "30"
+      ],
+      "correct": 1,
+      "explanations": [
+        "При чётном числе нужны два центральных значения.",
+        "(20 + 30) / 2 = 25.",
+        "30 — только верхнее из двух центральных значений."
+      ],
+      "example": "np.median([10, 20, 30, 40])"
+    },
+    {
+      "id": "eda-q3",
+      "version": 1,
+      "lessonId": "eda",
+      "topic": "EDA",
+      "prompt": "Наблюдение за пределом 1.5 IQR. Что делать?",
+      "options": [
+        "Всегда удалять",
+        "Проверить источник и бизнес-контекст",
+        "Заменить нулём"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Редкое значение может быть корректным.",
+        "Правило помогает найти кандидата на проверку, не выносит вердикт.",
+        "Ноль создаёт выдуманное наблюдение."
+      ],
+      "example": "suspect = value > q3 + 1.5 * (q3 - q1)"
+    },
+    {
+      "id": "eda-q4",
+      "version": 1,
+      "lessonId": "eda",
+      "topic": "EDA",
+      "prompt": "Корреляция рекламы и продаж 0.9. Реклама доказанно вызвала рост?",
+      "options": [
+        "Да",
+        "Нет"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Сезонность и другие факторы могут влиять на обе величины.",
+        "Корреляция описывает связь, но сама не устанавливает причину."
+      ],
+      "example": "df[['ad_spend', 'sales']].corr()"
+    },
+    {
+      "id": "eda-q5",
+      "version": 1,
+      "lessonId": "eda",
+      "topic": "EDA",
+      "prompt": "С чего начинается EDA?",
+      "options": [
+        "С красивого графика",
+        "С определения строки, периода и качества данных",
+        "С удаления максимума"
+      ],
+      "correct": 1,
+      "explanations": [
+        "График полезен после понимания данных и вопроса.",
+        "Без определения наблюдения легко неверно посчитать метрику.",
+        "Максимум не обязательно ошибка."
+      ],
+      "example": "print(df.shape, df.dtypes)\nprint(df.isna().sum())"
+    },
+    {
+      "id": "visualization-q1",
+      "version": 1,
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "prompt": "Какой график выбрать для выручки по месяцам?",
+      "options": [
+        "Линейный",
+        "Круговой",
+        "Boxplot"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Линия показывает последовательность изменений во времени.",
+        "Круговая диаграмма не показывает порядок месяцев.",
+        "Boxplot показывает распределение, не последовательность итогов."
+      ],
+      "example": "ax.plot(monthly.month, monthly.revenue)"
+    },
+    {
+      "id": "visualization-q2",
+      "version": 1,
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "prompt": "Что возвращает plt.subplots()?",
+      "options": [
+        "Только PNG",
+        "Figure и Axes",
+        "DataFrame"
+      ],
+      "correct": 1,
+      "explanations": [
+        "PNG получается при сохранении изображения.",
+        "Figure содержит рисунок, Axes — область построения.",
+        "Это графические объекты, не таблица."
+      ],
+      "example": "fig, ax = plt.subplots()"
+    },
+    {
+      "id": "visualization-q3",
+      "version": 1,
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "prompt": "Почему labels=['Jan','Feb'] плохо для универсальной задачи?",
+      "options": [
+        "Английские слова запрещены",
+        "Количество и значения месяцев могут измениться",
+        "Подписи всегда лишние"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Язык подписей не причина; важна связь с данными.",
+        "Подписи нужно брать из агрегированной таблицы.",
+        "Подписи необходимы для понимания оси."
+      ],
+      "example": "ax.plot(monthly['month'], monthly['revenue'])"
+    },
+    {
+      "id": "visualization-q4",
+      "version": 1,
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "prompt": "Ось Y столбчатого графика начинается с 99 при значениях 100 и 101. Риск?",
+      "options": [
+        "Визуально преувеличена разница",
+        "Никакого",
+        "График не построится"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Высота столбца кодирует величину; обрезанная база искажает сравнение.",
+        "Малая разница выглядит многократной.",
+        "Библиотека построит график, но смысл может быть искажён."
+      ],
+      "example": "ax.set_ylim(bottom=0)"
+    },
+    {
+      "id": "visualization-q5",
+      "version": 1,
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "prompt": "Что делает sns.histplot?",
+      "options": [
+        "Показывает распределение значения",
+        "Выполняет merge",
+        "Считает только среднее"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Наблюдения группируются по интервалам, высота показывает частоту.",
+        "Merge выполняет pandas.",
+        "Гистограмма раскрывает форму распределения, а не только одну метрику."
+      ],
+      "example": "sns.histplot(data=df, x='revenue', bins=20)"
+    },
+    {
+      "id": "statistics-q1",
+      "version": 1,
+      "lessonId": "statistics",
+      "topic": "Statistics",
+      "prompt": "Конверсия выросла с 10% до 12%. Абсолютная разница?",
+      "options": [
+        "20 процентных пунктов",
+        "2 процентных пункта",
+        "12%"
+      ],
+      "correct": 1,
+      "explanations": [
+        "20% — относительный прирост, не пункты.",
+        "12% − 10% = 2 процентных пункта.",
+        "12% — новая конверсия, не разница."
+      ],
+      "example": "absolute = 0.12 - 0.10"
+    },
+    {
+      "id": "statistics-q2",
+      "version": 1,
+      "lessonId": "statistics",
+      "topic": "Statistics",
+      "prompt": "Что означает p-value 0.03?",
+      "options": [
+        "Вероятность истинности H0 — 3%",
+        "При H0 столь же или более экстремальные данные имеют вероятность 3%",
+        "Эффект важен для бизнеса"
+      ],
+      "correct": 1,
+      "explanations": [
+        "p-value не является вероятностью гипотезы.",
+        "Это условная вероятность результатов при модели H0 и её допущениях.",
+        "Статистическая значимость не измеряет экономическую ценность."
+      ],
+      "example": "# Отчёт: эффект, интервал, p-value, допущения."
+    },
+    {
+      "id": "statistics-q3",
+      "version": 1,
+      "lessonId": "statistics",
+      "topic": "Statistics",
+      "prompt": "Почему np.std(x) и pd.Series(x).std() могут различаться?",
+      "options": [
+        "Разный ddof по умолчанию",
+        "Python считает случайно",
+        "pandas не умеет дисперсию"
+      ],
+      "correct": 0,
+      "explanations": [
+        "NumPy обычно ddof=0, pandas ddof=1.",
+        "Расчёт детерминирован при одинаковых данных и параметрах.",
+        "pandas поддерживает std и var."
+      ],
+      "example": "np.std(x, ddof=1)\npd.Series(x).std(ddof=1)"
+    },
+    {
+      "id": "statistics-q4",
+      "version": 1,
+      "lessonId": "statistics",
+      "topic": "Statistics",
+      "prompt": "Опрос только платящих клиентов описывает всех посетителей?",
+      "options": [
+        "Да, если выборка большая",
+        "Не обязательно: есть смещение отбора"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Большой объём не устраняет систематическое смещение.",
+        "Неплатящие посетители могут существенно отличаться."
+      ],
+      "example": "# Укажите population и способ формирования sample."
+    },
+    {
+      "id": "statistics-q5",
+      "version": 1,
+      "lessonId": "statistics",
+      "topic": "Statistics",
+      "prompt": "Можно остановить обычный A/B-тест при первом p < 0.05?",
+      "options": [
+        "Да, всегда",
+        "Нет, правило остановки должно учитывать повторные проверки"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Многократное подглядывание повышает вероятность ложного обнаружения.",
+        "Заранее задайте горизонт или используйте корректный последовательный дизайн."
+      ],
+      "example": "# До старта: метрика, alpha, выборка, правило остановки."
+    },
+    {
+      "id": "sql-q1",
+      "version": 1,
+      "lessonId": "sql",
+      "topic": "SQL",
+      "prompt": "Где фильтруются строки до группировки?",
+      "options": [
+        "WHERE",
+        "HAVING",
+        "ORDER BY"
+      ],
+      "correct": 0,
+      "explanations": [
+        "WHERE отбирает строки перед агрегацией.",
+        "HAVING фильтрует уже сформированные группы.",
+        "ORDER BY задаёт порядок результата."
+      ],
+      "example": "SELECT * FROM orders WHERE price > 100"
+    },
+    {
+      "id": "sql-q2",
+      "version": 1,
+      "lessonId": "sql",
+      "topic": "SQL",
+      "prompt": "Как вычислить выручку каждого города?",
+      "options": [
+        "SUM(price) без GROUP BY",
+        "SUM(quantity * price) с GROUP BY city",
+        "COUNT(city)"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Без количества и группировки это не нужная метрика.",
+        "Суммируем выручку позиций внутри каждого города.",
+        "COUNT считает наблюдения, не выручку."
+      ],
+      "example": "SELECT city, SUM(quantity * price) AS revenue FROM orders GROUP BY city"
+    },
+    {
+      "id": "sql-q3",
+      "version": 1,
+      "lessonId": "sql",
+      "topic": "SQL",
+      "prompt": "Гарантирован ли порядок без ORDER BY?",
+      "options": [
+        "Да, как при вставке",
+        "Нет"
+      ],
+      "correct": 1,
+      "explanations": [
+        "План выполнения и хранение могут изменить порядок.",
+        "Если порядок важен, задайте ORDER BY явно."
+      ],
+      "example": "ORDER BY revenue DESC, city ASC"
+    },
+    {
+      "id": "sql-q4",
+      "version": 1,
+      "lessonId": "sql",
+      "topic": "SQL",
+      "prompt": "Как передать значение в SQL безопасно?",
+      "options": [
+        "Конкатенацией строк",
+        "Параметрами драйвера",
+        "Через eval"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Склейка пользовательского ввода создаёт риск SQL-инъекции.",
+        "Драйвер отделяет данные от текста запроса.",
+        "eval не нужен и опасен для недоверенного ввода."
+      ],
+      "example": "pd.read_sql_query('SELECT * FROM orders WHERE city = ?', con, params=('Riga',))"
+    },
+    {
+      "id": "sql-q5",
+      "version": 1,
+      "lessonId": "sql",
+      "topic": "SQL",
+      "prompt": "Зачем выполнять запрос на другой базе той же схемы?",
+      "options": [
+        "Чтобы поменять синтаксис",
+        "Чтобы отвергнуть ответы, привязанные к примеру",
+        "Чтобы всегда получить тот же итог"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Синтаксис остаётся тем же, меняются значения.",
+        "Запрос должен обрабатывать входные строки, а не печатать константы.",
+        "Другие строки обычно дают другие итоги."
+      ],
+      "example": "SELECT city, SUM(quantity * price) FROM orders GROUP BY city"
     }
   ],
   "challenges": [
@@ -1081,7 +2016,9 @@
         "shuffled",
         "one-group",
         "larger",
-        "duplicates"
+        "duplicates",
+        "zero-visits",
+        "different-funnel"
       ],
       "hints": [
         "Нужна общая доля, а не среднее дневных долей.",
@@ -1165,8 +2102,752 @@
       "memoryLimit": 256,
       "rtol": 1e-06,
       "atol": 1e-08
+    },
+    {
+      "id": "numpy-mask",
+      "version": 1,
+      "title": "Выберите и преобразуйте значения",
+      "lessonId": "numpy",
+      "topic": "NumPy",
+      "library": "NumPy",
+      "kind": "array",
+      "difficulty": "Easy",
+      "function": "select_values",
+      "functionSignature": "def select_values(df: pd.DataFrame)",
+      "description": "Преобразуйте колонку value в NumPy-массив. Верните элементы строго больше 10, умноженные на 2, в исходном порядке. NaN не выбирается. df не изменяйте.",
+      "inputSchema": {
+        "value": "float · измерение; допустим NaN"
+      },
+      "outputSchema": "numpy.ndarray · одномерный числовой массив",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "import numpy as np\n\ndef select_values(df):\n    values = df['value'].to_numpy(dtype=float)\n    return values\n",
+      "visibleDataset": [
+        {
+          "value": 5.0
+        },
+        {
+          "value": 12.0
+        },
+        {
+          "value": 20.0
+        },
+        {
+          "value": null
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "shuffled",
+        "one-group",
+        "decimals",
+        "missing",
+        "larger"
+      ],
+      "hints": [
+        "Начните с to_numpy(dtype=float).",
+        "Постройте маску values > 10.",
+        "Выберите values[mask], затем умножьте результат на 2."
+      ],
+      "solution": "def select_values(df):\n    values = df.value.to_numpy(dtype=float)\n    return values[values > 10] * 2\n",
+      "explanation": "Выберите values[mask], затем умножьте результат на 2.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "clean-cities",
+      "version": 1,
+      "title": "Приведите города к одному виду",
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "clean_cities",
+      "functionSignature": "def clean_cities(df: pd.DataFrame)",
+      "description": "В колонке city уберите внешние пробелы и приведите названия к Title Case. Затем удалите полностью одинаковые строки, оставив первое вхождение. Сохраните порядок и колонки. Пропусков city нет. df не изменяйте.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "value": "float >= 0 · число обращений"
+      },
+      "outputSchema": "DataFrame: city, value",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def clean_cities(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "city": " Riga ",
+          "value": 10.0
+        },
+        {
+          "city": "RIGA",
+          "value": 10.0
+        },
+        {
+          "city": "tallinn",
+          "value": 20.0
+        },
+        {
+          "city": " Vilnius",
+          "value": 15.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Порядок очистки важен: сначала текст, потом дубликаты.",
+        "Используйте .str.strip().str.title().",
+        "Создайте новую таблицу с assign(), затем drop_duplicates() без изменения порядка."
+      ],
+      "solution": "def clean_cities(df):\n    return df.assign(city=df.city.str.strip().str.title()).drop_duplicates()\n",
+      "explanation": "Создайте новую таблицу с assign(), затем drop_duplicates() без изменения порядка.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "fill-missing",
+      "version": 1,
+      "title": "Заполните пропуски по контракту",
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "fill_missing",
+      "functionSignature": "def fill_missing(df: pd.DataFrame)",
+      "description": "Замените отсутствующие value медианой непустых значений этой колонки. Сохраните все строки и порядок. Гарантируется хотя бы одно непустое значение. Это учебная политика, а не универсальное правило очистки. df не изменяйте.",
+      "inputSchema": {
+        "value": "float · измерение, допустим NaN"
+      },
+      "outputSchema": "DataFrame: value; без пропусков",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def fill_missing(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "value": 10.0
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 30.0
+        },
+        {
+          "value": 100.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "shuffled",
+        "one-group",
+        "missing",
+        "decimals",
+        "larger"
+      ],
+      "hints": [
+        "Медиана должна вычисляться по входу, а не быть константой.",
+        "Series.median() игнорирует NaN.",
+        "Используйте df.assign(value=df.value.fillna(df.value.median()))."
+      ],
+      "solution": "def fill_missing(df):\n    return df.assign(value=df.value.fillna(df.value.median()))\n",
+      "explanation": "Используйте df.assign(value=df.value.fillna(df.value.median())).",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "median",
+      "version": 1,
+      "title": "Устойчивый центр распределения",
+      "lessonId": "eda",
+      "topic": "EDA",
+      "library": "NumPy",
+      "kind": "scalar",
+      "difficulty": "Easy",
+      "function": "typical_value",
+      "functionSignature": "def typical_value(df: pd.DataFrame)",
+      "description": "Верните медиану непустых value как число. Гарантируется хотя бы одно непустое значение. Выбросы не удаляйте: медиана вычисляется по всем наблюдаемым значениям. df не изменяйте.",
+      "inputSchema": {
+        "value": "float · показатель; допустим NaN"
+      },
+      "outputSchema": "float · медиана непустых значений",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "import numpy as np\n\ndef typical_value(df):\n    return 0.0\n",
+      "visibleDataset": [
+        {
+          "value": 10.0
+        },
+        {
+          "value": 12.0
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 14.0
+        },
+        {
+          "value": 500.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "shuffled",
+        "one-group",
+        "missing",
+        "decimals",
+        "larger"
+      ],
+      "hints": [
+        "Медиана определяется порядком значений, а не их суммой.",
+        "Для NumPy с пропусками есть nanmedian.",
+        "np.nanmedian(df.value.to_numpy(dtype=float)) игнорирует NaN, сохраняя выбросы."
+      ],
+      "solution": "def typical_value(df):\n    return float(np.nanmedian(df.value.to_numpy(dtype=float)))\n",
+      "explanation": "np.nanmedian(df.value.to_numpy(dtype=float)) игнорирует NaN, сохраняя выбросы.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "monthly-plot",
+      "version": 1,
+      "title": "Постройте monthly revenue",
+      "lessonId": "visualization",
+      "topic": "Visualization",
+      "library": "Matplotlib",
+      "kind": "plot",
+      "difficulty": "Easy",
+      "function": "plot_monthly_revenue",
+      "functionSignature": "def plot_monthly_revenue(df: pd.DataFrame)",
+      "description": "Суммируйте revenue по month, отсортируйте month по возрастанию и постройте одну линию на одной Axes. Верните Matplotlib Figure с непустым заголовком и подписями обеих осей. X-значения — строки month из данных, Y — суммы revenue. df не изменяйте.",
+      "inputSchema": {
+        "month": "string YYYY-MM · месяц",
+        "revenue": "float >= 0 · выручка позиции, EUR"
+      },
+      "outputSchema": "matplotlib.figure.Figure · одна линия; подписи month из данных",
+      "ordering": "month ↑; график показывает агрегированные значения.",
+      "immutable": true,
+      "starterCode": "import matplotlib.pyplot as plt\n\ndef plot_monthly_revenue(df):\n    fig, ax = plt.subplots()\n    # Сгруппируйте данные и добавьте линию\n    return fig\n",
+      "visibleDataset": [
+        {
+          "month": "2026-01",
+          "revenue": 200.0
+        },
+        {
+          "month": "2026-02",
+          "revenue": 320.0
+        },
+        {
+          "month": "2026-01",
+          "revenue": 150.0
+        },
+        {
+          "month": "2026-03",
+          "revenue": 510.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "different-months",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates"
+      ],
+      "hints": [
+        "Сначала нужен итог за каждый месяц.",
+        "Используйте groupby('month'), sum и sort_values('month').",
+        "Передайте столбцы monthly.month и monthly.revenue в ax.plot, задайте подписи и верните fig."
+      ],
+      "solution": "import matplotlib.pyplot as plt\n\ndef plot_monthly_revenue(df):\n    monthly = df.groupby('month', as_index=False).agg(revenue=('revenue', 'sum')).sort_values('month')\n    fig, ax = plt.subplots()\n    ax.plot(monthly.month, monthly.revenue)\n    ax.set(title='Monthly revenue', xlabel='Month', ylabel='Revenue, EUR')\n    return fig\n",
+      "explanation": "Передайте столбцы monthly.month и monthly.revenue в ax.plot, задайте подписи и верните fig.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "sql-revenue",
+      "version": 1,
+      "title": "Выручка по городам через SQL",
+      "lessonId": "sql",
+      "topic": "SQL",
+      "library": "SQL",
+      "kind": "sql",
+      "difficulty": "Easy",
+      "function": "",
+      "functionSignature": "SELECT ... FROM orders",
+      "description": "Напишите SELECT для таблицы orders: city и SUM(quantity * price) AS revenue по каждому городу. Порядок revenue DESC, затем city ASC. Повторяющиеся строки учитываются отдельно; пропусков нет. Изменять БД запрещено.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "Таблица: city, revenue",
+      "ordering": "revenue ↓, city ↑; индекс игнорируется.",
+      "immutable": true,
+      "starterCode": "SELECT city, quantity, price\nFROM orders;\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Нужен итог по ключу city.",
+        "Используйте GROUP BY и SUM(quantity * price).",
+        "Назовите сумму revenue через AS, затем ORDER BY revenue DESC, city ASC."
+      ],
+      "solution": "SELECT city, SUM(quantity * price) AS revenue\nFROM orders\nGROUP BY city\nORDER BY revenue DESC, city ASC;\n",
+      "explanation": "Назовите сумму revenue через AS, затем ORDER BY revenue DESC, city ASC.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "junior-audit",
+      "version": 1,
+      "title": "Аудит оплаченных заказов",
+      "lessonId": "cleaning",
+      "topic": "Data Cleaning",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Junior",
+      "function": "audit_orders",
+      "functionSignature": "def audit_orders(df: pd.DataFrame)",
+      "description": "Одна строка — заказ. Сначала удалите повторы order_id (keep='first'). Исключите пропуски city/price/quantity, price < 0, quantity <= 0 и status != 'paid'. Нормализуйте city через strip/title. По городу верните revenue=sum(quantity*price), orders=число уникальных order_id. Сортировка revenue DESC, city ASC. Вход не изменяйте. Это часть практики, а не полная Junior-аттестация.",
+      "inputSchema": {
+        "order_id": "integer · ключ заказа; повторы возможны",
+        "city": "string nullable · город",
+        "quantity": "numeric nullable · число единиц",
+        "price": "numeric nullable · EUR; отрицательные значения ошибочны",
+        "status": "string · paid или cancelled"
+      },
+      "outputSchema": "DataFrame: city, revenue, orders",
+      "ordering": "revenue ↓, city ↑; индекс игнорируется.",
+      "immutable": true,
+      "starterCode": "def audit_orders(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "order_id": 1,
+          "city": " Riga ",
+          "quantity": 2,
+          "price": 20.0,
+          "status": "paid"
+        },
+        {
+          "order_id": 1,
+          "city": "Riga",
+          "quantity": 2,
+          "price": 20.0,
+          "status": "paid"
+        },
+        {
+          "order_id": 2,
+          "city": "tallinn",
+          "quantity": 3,
+          "price": 10.0,
+          "status": "paid"
+        },
+        {
+          "order_id": 3,
+          "city": null,
+          "quantity": 1,
+          "price": 99.0,
+          "status": "paid"
+        },
+        {
+          "order_id": 4,
+          "city": "Vilnius",
+          "quantity": 1,
+          "price": -10.0,
+          "status": "paid"
+        },
+        {
+          "order_id": 5,
+          "city": "Riga",
+          "quantity": 2,
+          "price": 15.0,
+          "status": "cancelled"
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Соблюдайте порядок очистки из контракта.",
+        "drop_duplicates('order_id'), dropna(subset=...), затем булева маска.",
+        "После нормализации city вычислите revenue и выполните groupby с sum и nunique."
+      ],
+      "solution": "def audit_orders(df):\n    clean = df.drop_duplicates('order_id').dropna(subset=['city', 'price', 'quantity'])\n    clean = clean.loc[(clean.price >= 0) & (clean.quantity > 0) & (clean.status == 'paid')]\n    return (clean.assign(city=clean.city.str.strip().str.title(), revenue=clean.quantity * clean.price)\n        .groupby('city', as_index=False).agg(revenue=('revenue', 'sum'), orders=('order_id', 'nunique'))\n        .sort_values(['revenue', 'city'], ascending=[False, True]))\n",
+      "explanation": "После нормализации city вычислите revenue и выполните groupby с sum и nunique.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "python-revenue",
+      "version": 1,
+      "title": "Первая выручка на Python",
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "library": "Python",
+      "kind": "scalar",
+      "difficulty": "Beginner",
+      "function": "",
+      "functionSignature": "result = ...",
+      "description": "В редактор уже переданы две переменные: price — цена единицы, quantity — количество. Сохраните их произведение в переменную result. Выведите результат через print(result). Не задавайте price и quantity вручную: при проверке они изменятся.",
+      "inputSchema": {
+        "price": "float >= 0 · цена единицы, EUR",
+        "quantity": "integer > 0 · количество"
+      },
+      "outputSchema": "result: число · price × quantity",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "# price и quantity уже доступны\nresult = 0\nprint(result)\n",
+      "visibleDataset": [
+        {
+          "price": 12.5,
+          "quantity": 4
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "different-numbers",
+        "zero-price",
+        "decimals"
+      ],
+      "hints": [
+        "Выручка равна цене одной единицы, умноженной на количество.",
+        "Умножение в Python записывается символом *.",
+        "Напишите result = price * quantity, затем print(result)."
+      ],
+      "solution": "result = price * quantity\nprint(result)\n",
+      "explanation": "Напишите result = price * quantity, затем print(result).",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
     }
   ],
-  "projects": [],
-  "exams": []
+  "projects": [
+    {
+      "id": "sales-analysis",
+      "title": "Sales Analysis",
+      "description": "Проведите аудит продаж, очистите данные и объясните динамику выручки руководителю магазина.",
+      "tasks": [
+        "Загрузите orders.csv; определите смысл строки и единицы метрик.",
+        "Проверьте дубликаты order_id, пустые города и недопустимые суммы. Запишите правила очистки.",
+        "Оставьте оплаченные заказы, нормализуйте города и вычислите quantity × price.",
+        "Посчитайте выручку по месяцам и городам, средний чек и число заказов.",
+        "Постройте линию по месяцам и столбцы по городам. Напишите три вывода с ограничениями."
+      ],
+      "challengeIds": [
+        "revenue-city",
+        "monthly-plot",
+        "aov"
+      ],
+      "files": [
+        "orders.csv"
+      ],
+      "rubric": [
+        "Исходный файл не изменён; код воспроизводится с чистого запуска",
+        "Правила удаления и замены значений документированы",
+        "Выручка учитывает quantity и статус заказа",
+        "У графиков есть единицы и читаемые подписи",
+        "Выводы опираются на конкретные числа"
+      ]
+    },
+    {
+      "id": "customer-analysis",
+      "title": "Customer Analysis",
+      "description": "Соедините заказы и покупателей, найдите повторные покупки и проверьте, не искажает ли merge метрики.",
+      "tasks": [
+        "Загрузите customers.csv и orders.csv. Проверьте уникальность customer_id справа.",
+        "Выполните left merge с validate='many_to_one' и indicator=True.",
+        "Сравните количество строк и выручку до и после merge.",
+        "Посчитайте уникальные заказы и выручку каждого клиента; выделите repeat customers.",
+        "Сравните сегменты по размеру и выручке, укажите ограничения выборки."
+      ],
+      "challengeIds": [
+        "customer-summary",
+        "revenue-city"
+      ],
+      "files": [
+        "customers.csv",
+        "orders.csv"
+      ],
+      "rubric": [
+        "Кратность merge проверена",
+        "Неизвестные customer_id не исчезли молча",
+        "Повторный клиент имеет минимум два уникальных заказа",
+        "Неплатящие клиенты учтены или явно исключены",
+        "Вывод не приписывает причинность корреляции"
+      ]
+    },
+    {
+      "id": "marketing-funnel",
+      "title": "Marketing Funnel",
+      "description": "Разберите воронку привлечения: посещения, регистрации, покупки и различия между каналами.",
+      "tasks": [
+        "Загрузите marketing.csv. Проверьте visits >= registrations >= purchases.",
+        "Посчитайте суммарную конверсию каждого этапа по каналам.",
+        "Сравните абсолютные различия в процентных пунктах и относительные изменения.",
+        "Постройте таблицу метрик с количеством наблюдений.",
+        "Предложите две гипотезы и опишите, какие дополнительные данные нужны для проверки."
+      ],
+      "challengeIds": [
+        "conversion"
+      ],
+      "files": [
+        "marketing.csv"
+      ],
+      "rubric": [
+        "Общая конверсия посчитана через отношение сумм",
+        "Нулевые знаменатели обработаны явно",
+        "Проценты не перепутаны с процентными пунктами",
+        "Нет утверждений о доказанной причинности",
+        "Указаны ограничения и следующий шаг исследования"
+      ]
+    },
+    {
+      "id": "ecommerce",
+      "title": "E-commerce Analytics",
+      "description": "Полный учебный бриф: четыре связанные таблицы, аудит качества, бизнес-метрики и пять аргументированных выводов.",
+      "tasks": [
+        "Загрузите customers.csv, orders.csv, order_items.csv и products.csv.",
+        "Проверьте schema, уникальность ключей и ссылочную целостность.",
+        "Сформулируйте политику пропусков, дубликатов, отмен и недопустимых значений.",
+        "Соедините позиции, заказы, покупателей и товары с проверкой кратности.",
+        "Вычислите выручку и AOV; для AOV делите на уникальные заказы.",
+        "Найдите top categories и top cities, динамику monthly revenue и repeat customers.",
+        "Постройте минимум три подходящих графика.",
+        "Напишите пять выводов: наблюдение → число → ограничение → следующий вопрос.",
+        "Повторно запустите весь pipeline из чистого состояния."
+      ],
+      "challengeIds": [
+        "customer-summary",
+        "revenue-city",
+        "monthly-plot",
+        "junior-audit"
+      ],
+      "files": [
+        "customers.csv",
+        "orders.csv",
+        "order_items.csv",
+        "products.csv"
+      ],
+      "rubric": [
+        "Все join имеют проверенную кратность",
+        "Число уникальных заказов не спутано с числом позиций",
+        "Отмены и ошибки исключены по зафиксированному правилу",
+        "Месячная ось включает год",
+        "Пять выводов подтверждены числами",
+        "Исходные файлы сохранены; результат воспроизводим",
+        "Самопроверка не выдаётся за независимый Junior assessment"
+      ]
+    }
+  ],
+  "exams": [
+    {
+      "id": "python-check",
+      "title": "Python",
+      "questionIds": [
+        "python-start-q1",
+        "python-start-q2",
+        "python-start-q3",
+        "python-start-q4",
+        "python-start-q5",
+        "functions-q1",
+        "functions-q2",
+        "functions-q3",
+        "functions-q4",
+        "functions-q5"
+      ],
+      "challengeIds": [
+        "conversion"
+      ]
+    },
+    {
+      "id": "numpy-check",
+      "title": "NumPy",
+      "questionIds": [
+        "numpy-q1",
+        "numpy-q2",
+        "numpy-q3",
+        "numpy-q4",
+        "numpy-q5"
+      ],
+      "challengeIds": [
+        "numpy-mask"
+      ]
+    },
+    {
+      "id": "pandas-check",
+      "title": "pandas",
+      "questionIds": [
+        "pandas-intro-q1",
+        "pandas-intro-q2",
+        "pandas-intro-q3",
+        "pandas-intro-q4",
+        "pandas-intro-q5",
+        "pandas-filtering-q1",
+        "pandas-filtering-q2",
+        "pandas-filtering-q3",
+        "pandas-filtering-q4",
+        "pandas-filtering-q5",
+        "groupby-q1",
+        "groupby-q2",
+        "groupby-q3",
+        "groupby-q4",
+        "groupby-q5"
+      ],
+      "challengeIds": [
+        "filter-orders",
+        "revenue-city"
+      ]
+    },
+    {
+      "id": "cleaning-check",
+      "title": "Очистка",
+      "questionIds": [
+        "cleaning-q1",
+        "cleaning-q2",
+        "cleaning-q3",
+        "cleaning-q4",
+        "cleaning-q5",
+        "joins-dates-q1",
+        "joins-dates-q2",
+        "joins-dates-q3",
+        "joins-dates-q4",
+        "joins-dates-q5"
+      ],
+      "challengeIds": [
+        "clean-cities",
+        "fill-missing"
+      ]
+    },
+    {
+      "id": "plot-check",
+      "title": "Графики",
+      "questionIds": [
+        "visualization-q1",
+        "visualization-q2",
+        "visualization-q3",
+        "visualization-q4",
+        "visualization-q5"
+      ],
+      "challengeIds": [
+        "monthly-plot"
+      ]
+    },
+    {
+      "id": "stats-check",
+      "title": "Статистика",
+      "questionIds": [
+        "eda-q1",
+        "eda-q2",
+        "eda-q3",
+        "eda-q4",
+        "eda-q5",
+        "statistics-q1",
+        "statistics-q2",
+        "statistics-q3",
+        "statistics-q4",
+        "statistics-q5"
+      ],
+      "challengeIds": [
+        "median"
+      ]
+    },
+    {
+      "id": "sql-check",
+      "title": "SQL",
+      "questionIds": [
+        "sql-q1",
+        "sql-q2",
+        "sql-q3",
+        "sql-q4",
+        "sql-q5"
+      ],
+      "challengeIds": [
+        "sql-revenue"
+      ]
+    }
+  ]
 }

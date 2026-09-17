@@ -1,0 +1,77 @@
+{
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "module": {
+      "title": "Module",
+      "type": "string"
+    },
+    "topic": {
+      "title": "Topic",
+      "type": "string"
+    },
+    "level": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Level",
+      "type": "integer"
+    },
+    "minutes": {
+      "title": "Minutes",
+      "type": "integer"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "objectives": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Objectives",
+      "type": "array"
+    },
+    "sections": {
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "challengeIds": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Challengeids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "module",
+    "topic",
+    "level",
+    "minutes",
+    "summary",
+    "objectives",
+    "sections",
+    "challengeIds"
+  ],
+  "title": "Lesson",
+  "type": "object"
+}

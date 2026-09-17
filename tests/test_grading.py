@@ -91,3 +91,24 @@ def test_mutating_solution_rejected(docker_ready):
     result = grade(c, code, submit=False)
     assert result["status"] == "failed"
     assert "mutation" in result["tests"][0]["feedback"]
+
+
+@pytest.mark.docker
+def test_hardcoded_sql_rejected(docker_ready):
+    c = item("challenges", "sql-revenue")
+    result = grade(
+        c,
+        "SELECT 'Riga' AS city, 480.0 AS revenue UNION ALL SELECT 'Tallinn', 340.0 UNION ALL SELECT 'Vilnius', 300.0",
+    )
+    assert result["visibleTestsPassed"] == 1
+    assert result["status"] == "failed"
+
+
+@pytest.mark.docker
+def test_hardcoded_plot_rejected(docker_ready):
+    c = item("challenges", "monthly-plot")
+    code = "import matplotlib.pyplot as plt\ndef plot_monthly_revenue(df):\n    fig, ax = plt.subplots()\n    ax.plot(['2026-01', '2026-02', '2026-03'], [350, 320, 510])\n    ax.set(title='Revenue', xlabel='Month', ylabel='EUR')\n    return fig"
+    result = grade(c, code)
+    assert result["visibleTestsPassed"] == 1
+    assert result["status"] == "failed"
+    assert result["failedTestCategory"] == "different-months"

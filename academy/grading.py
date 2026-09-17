@@ -40,6 +40,14 @@ def cases(challenge: dict) -> list[dict]:
             rows = rows + [dict(rows[0]), dict(rows[0])]
         elif category == "missing":
             rows[0]["value"] = None
+        elif category == "zero-visits":
+            rows = [{"visits": 0, "purchases": 0} for _ in range(3)]
+        elif category == "different-funnel":
+            rows = [{"visits": 7, "purchases": 3}, {"visits": 311, "purchases": 19}]
+        elif category == "different-numbers":
+            rows = [{"price": 73.25, "quantity": 7}]
+        elif category == "zero-price":
+            rows = [{"price": 0.0, "quantity": 12}]
         elif category == "different-months":
             rows = rows + [dict(rows[0]), dict(rows[-1])]
             for j, row in enumerate(rows):
@@ -61,6 +69,8 @@ def cases(challenge: dict) -> list[dict]:
 
 
 def reference(identity: str, df: pd.DataFrame) -> Any:
+    if identity == "python-revenue":
+        return float(df.price.iloc[0] * df.quantity.iloc[0])
     if identity in {"revenue-city", "sql-revenue"}:
         return (
             df.assign(revenue=df.quantity * df.price)
@@ -228,8 +238,12 @@ def grade(challenge: dict, code: str, submit: bool = True) -> dict:
     visible = None
     duration = 0.0
     preview = None
+    timed_out = False
+    resource_limited = False
     for i, case in enumerate(cases(challenge) if submit else cases(challenge)[:1]):
         response = execute_case(challenge, code, case, i)
+        timed_out |= response.get("error") == "Timeout"
+        resource_limited |= response.get("error") in {"MemoryLimit", "OutputLimit"}
         duration += response.get("duration", 0)
         expected = reference(challenge["id"], frame(case["data"], list(challenge["inputSchema"])))
         passed, detail = compare(challenge, response, expected)
@@ -260,8 +274,8 @@ def grade(challenge: dict, code: str, submit: bool = True) -> dict:
         "hiddenTestsPassed": sum(x["passed"] for x in results[1:]),
         "failedTestCategory": next((x["category"] for x in results if not x["passed"]), None),
         "duration": round(duration, 3),
-        "timeout": visible.get("error") == "Timeout",
-        "resourceLimitExceeded": visible.get("error") in {"MemoryLimit", "OutputLimit"},
+        "timeout": timed_out,
+        "resourceLimitExceeded": resource_limited,
         "stdout": visible.get("stdout", ""),
         "stderr": visible.get("message", visible.get("stderr", "")),
         "output": visible.get("result"),

@@ -1,0 +1,66 @@
+{
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "lessonId": {
+      "title": "Lessonid",
+      "type": "string"
+    },
+    "topic": {
+      "title": "Topic",
+      "type": "string"
+    },
+    "kind": {
+      "default": "single-choice",
+      "title": "Kind",
+      "type": "string"
+    },
+    "prompt": {
+      "title": "Prompt",
+      "type": "string"
+    },
+    "options": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2,
+      "title": "Options",
+      "type": "array"
+    },
+    "correct": {
+      "minimum": 0,
+      "title": "Correct",
+      "type": "integer"
+    },
+    "explanations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Explanations",
+      "type": "array"
+    },
+    "example": {
+      "title": "Example",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "lessonId",
+    "topic",
+    "prompt",
+    "options",
+    "correct",
+    "explanations",
+    "example"
+  ],
+  "title": "Question",
+  "type": "object"
+}
