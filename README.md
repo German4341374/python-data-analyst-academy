@@ -51,6 +51,14 @@ Open **[http://localhost:8080](http://localhost:8080)**. First build downloads P
 
 On Windows use a checkout path containing ASCII characters. Some Docker Compose/Bake builds reject non-ASCII paths with `x-docker-expose-session-sharedkey`. A directory junction to the same checkout also works; no files need to be moved. WSL 2 must be installed and Docker's Linux engine running.
 
+For a Windows folder with Cyrillic characters, the included launcher creates a checked ASCII junction automatically and starts Compose:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start.ps1
+```
+
+The execution-policy option applies only to that PowerShell process. The launcher never moves or removes project files.
+
 Default Compose database/broker credentials are **local-development-only**, documented in `.env.example`; there is no shared pre-created account. Each browser receives a separate demo profile. Register an email/password (12+ characters) to keep that profile. `docker compose down` stops services without deleting the database volume.
 
 ## Architecture
