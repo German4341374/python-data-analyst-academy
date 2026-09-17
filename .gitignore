@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+dist/
+.env
+*.db
+*.db-*
+*.log
+test-results/
+playwright-report/
+.local/
+*.egg-info/

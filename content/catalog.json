@@ -1,0 +1,1172 @@
+{
+  "version": "0.1.0",
+  "lessons": [
+    {
+      "id": "python-start",
+      "version": 1,
+      "title": "Первая строка Python",
+      "module": "01 · Основы Python",
+      "topic": "Python Basics",
+      "level": 0,
+      "minutes": 15,
+      "summary": "От первого print() к выручке магазина. Никакого опыта программирования не нужно.",
+      "objectives": [
+        "Запустить Python-код в редакторе",
+        "Сохранить значение в переменной",
+        "Различать число и текст"
+      ],
+      "sections": [
+        {
+          "title": "Код — это последовательность инструкций",
+          "text": "Python выполняет строки сверху вниз. Команда print() показывает значение в панели вывода. Текст заключают в кавычки. Нажмите «Практика», чтобы запустить пример; устанавливать Python для этого урока не нужно.",
+          "code": "print(\"Привет, аналитик!\")\nprint(3 * 250)"
+        },
+        {
+          "title": "Назовём данные",
+          "text": "Переменная связывает понятное имя со значением. Знак = присваивает значение, а не сравнивает. price — цена одной единицы в евро; quantity — количество. Выручка до возвратов — их произведение. Комментарий после # не выполняется.",
+          "code": "price = 250\nquantity = 3\nrevenue = price * quantity\nprint(revenue)  # 750"
+        },
+        {
+          "title": "Число или строка?",
+          "text": "int — целое число; float — число с дробной частью; str — текст; bool — True или False. Строка \"250\" не равна числу 250. type() помогает проверить тип; float() превращает корректную числовую строку в число. None означает отсутствие значения, а не ноль.",
+          "code": "raw_price = \"19.90\"\nprice = float(raw_price)\nprint(type(price))\nprint(f\"Цена: {price:.2f} EUR\")"
+        },
+        {
+          "title": "Проверь понимание",
+          "text": "Измените quantity на 5 и предскажите выручку до запуска. Для имён используйте revenue_total, а не непонятное x. Python чувствителен к регистру: Revenue и revenue — разные имена.",
+          "code": "quantity = 5\nprice = 12.5\nprint(quantity * price)"
+        }
+      ],
+      "challengeIds": [
+        "conversion"
+      ]
+    },
+    {
+      "id": "functions",
+      "version": 1,
+      "title": "Функции и надёжные расчёты",
+      "module": "01 · Основы Python",
+      "topic": "Functions",
+      "level": 1,
+      "minutes": 25,
+      "summary": "Пишем расчёт конверсии, который работает с новыми числами и не падает на нуле.",
+      "objectives": [
+        "Передавать аргументы и возвращать результат",
+        "Понимать if, циклы и отступы",
+        "Обрабатывать ошибки данных"
+      ],
+      "sections": [
+        {
+          "title": "Функция как повторяемый расчёт",
+          "text": "def объявляет функцию. Параметры получают значения при вызове. return возвращает результат вызывающему коду; print лишь показывает его. Четыре пробела отделяют тело функции.",
+          "code": "def conversion(purchases, visits):\n    if visits == 0:\n        return 0.0\n    return purchases / visits\n\nprint(conversion(12, 200))"
+        },
+        {
+          "title": "Условия и коллекции",
+          "text": "if выполняет ветку только при истинном условии. Список хранит последовательность значений; словарь связывает ключ со значением. Цикл for повторяет действие. == сравнивает значения, is проверяет идентичность объекта: для чисел используйте ==, для None — is None.",
+          "code": "orders = [100, 200, 50]\ntotal = 0\nfor amount in orders:\n    total += amount\nprices = {\"coffee\": 4.5}\nprint(total, prices[\"coffee\"])"
+        },
+        {
+          "title": "Ошибки полезны",
+          "text": "ValueError означает, что значение не удалось преобразовать; TypeError — что операция не подходит для типа. Перехватывайте ожидаемую ошибку, а не скрывайте все ошибки через except без типа. Проверьте границы: ноль посещений, одна покупка, дробный результат.",
+          "code": "try:\n    price = float(\"unknown\")\nexcept ValueError:\n    price = None\n\nif price is None:\n    print(\"Проверьте исходную цену\")"
+        },
+        {
+          "title": "Взвешенная конверсия",
+          "text": "Общая конверсия — сумма покупок / сумма посещений. Среднее дневных конверсий может быть неверным, если трафик по дням различается. В задаче df.visits.sum() возвращает сумму столбца visits. Мы изучим DataFrame подробнее в следующем разделе.",
+          "code": "visits = [10, 1000]\npurchases = [5, 50]\nprint(sum(purchases) / sum(visits))"
+        }
+      ],
+      "challengeIds": [
+        "conversion"
+      ]
+    },
+    {
+      "id": "pandas-intro",
+      "version": 1,
+      "title": "Знакомство с DataFrame",
+      "module": "02 · pandas",
+      "topic": "Pandas",
+      "level": 4,
+      "minutes": 20,
+      "summary": "Читаем таблицу как аналитик: строки, колонки, типы и первые проверки.",
+      "objectives": [
+        "Различать Series и DataFrame",
+        "Выбирать колонки",
+        "Проверять форму и типы данных"
+      ],
+      "sections": [
+        {
+          "title": "Таблица в Python",
+          "text": "DataFrame — таблица с именованными колонками. Series — одна колонка с индексом. Одна строка наших данных — позиция заказа; price измеряется в EUR за единицу, quantity — количество единиц. Это важно: выручка не равна сумме цен.",
+          "code": "import pandas as pd\n\ndf = pd.DataFrame({\"city\": [\"Riga\", \"Tallinn\"], \"price\": [20, 50], \"quantity\": [2, 1]})\nprint(df.head())"
+        },
+        {
+          "title": "Начните с вопросов к данным",
+          "text": "shape сообщает (строки, колонки); dtypes — тип каждой колонки. head() показывает первые пять строк, но не доказывает качество всей таблицы. info() печатает краткое описание, describe() считает сводные числовые характеристики.",
+          "code": "print(df.shape)\nprint(df.dtypes)\ndf.info()\nprint(df.describe())"
+        },
+        {
+          "title": "Одна колонка или таблица",
+          "text": "df['price'] — Series. df[['city', 'price']] — DataFrame, потому что передан список имён колонок. Имена чувствительны к пробелам и регистру. KeyError часто означает опечатку: посмотрите df.columns.",
+          "code": "prices = df[\"price\"]\npreview = df[[\"city\", \"price\"]].copy()\nprint(preview)"
+        },
+        {
+          "title": "Загрузка и воспроизводимость",
+          "text": "В локальном Python read_csv читает CSV, read_excel — Excel с openpyxl. Указывайте разделитель и нужные колонки. В учебном runner таблица уже передана как df; файлы с вашего компьютера недоступны. В notebook выполните Restart & Run All: результат не должен зависеть от старых ячеек.",
+          "code": "df = pd.read_csv(\"orders.csv\", usecols=[\"city\", \"price\", \"quantity\"])\n# Excel: pd.read_excel(\"orders.xlsx\", sheet_name=\"Orders\")"
+        }
+      ],
+      "challengeIds": [
+        "select-columns"
+      ]
+    },
+    {
+      "id": "pandas-filtering",
+      "version": 1,
+      "title": "Фильтрация данных",
+      "module": "02 · pandas",
+      "topic": "Pandas",
+      "level": 4,
+      "minutes": 25,
+      "summary": "От булевой маски к точному ответу на бизнес-вопрос. Объединяем условия без ошибок.",
+      "objectives": [
+        "Построить булеву маску",
+        "Объединить условия через & и |",
+        "Сохранить исходные данные"
+      ],
+      "sections": [
+        {
+          "title": "Бизнес-вопрос прежде кода",
+          "text": "Найдём позиции заказов с ценой выше 100 EUR и количеством не меньше двух. Одна строка — позиция заказа, а не клиент. Сначала сформулируйте строгие границы: цена 100 не подходит, количество 2 подходит.",
+          "code": "price_limit = 100\nminimum_quantity = 2"
+        },
+        {
+          "title": "Маска — ещё не таблица",
+          "text": "df['price'] > 100 возвращает Series из True и False, по одному значению на строку. Чтобы получить сами строки, передайте эту маску обратно в df. Внутри маски нет копии исходных данных.",
+          "code": "mask = df[\"price\"] > 100\nresult = df.loc[mask]\nprint(result)"
+        },
+        {
+          "title": "Два условия вместе",
+          "text": "Для Series используйте & (и), | (или), ~ (не). and и or предназначены для отдельных булевых значений. Каждое сравнение берите в скобки: без них Python иначе расставит приоритет операций.",
+          "code": "mask = (df[\"price\"] > 100) & (df[\"quantity\"] >= 2)\nresult = df.loc[mask].copy()"
+        },
+        {
+          "title": "Честная проверка",
+          "text": "Хорошее решение выдерживает новый порядок строк, другой город и больше заказов. Не выбирайте строки по их номерам из примера. Если планируете менять результат, сделайте copy(); исходный DataFrame задачи должен сохраниться.",
+          "code": "def filter_orders(df):\n    mask = (df[\"price\"] > 100) & (df[\"quantity\"] >= 2)\n    return df.loc[mask].copy()"
+        }
+      ],
+      "challengeIds": [
+        "filter-orders",
+        "sort-orders"
+      ]
+    },
+    {
+      "id": "groupby",
+      "version": 1,
+      "title": "Выручка по городам",
+      "module": "02 · pandas",
+      "topic": "Data Transformation",
+      "level": 4,
+      "minutes": 30,
+      "summary": "Считаем revenue, группируем заказы и собираем воспроизводимый отчёт.",
+      "objectives": [
+        "Создать вычисляемую колонку",
+        "Использовать groupby и sum",
+        "Задать однозначную сортировку"
+      ],
+      "sections": [
+        {
+          "title": "Что именно суммируем",
+          "text": "price — цена единицы, quantity — число единиц. Сначала вычисляем выручку каждой позиции: quantity × price. Сумма цен сама по себе не является выручкой. Данные примера синтетические, суммы — в EUR, налоги и возвраты не включены.",
+          "code": "orders = df.assign(revenue=df[\"quantity\"] * df[\"price\"])"
+        },
+        {
+          "title": "Split → apply → combine",
+          "text": "groupby разбивает строки на группы, sum агрегирует значения, pandas соединяет результаты. as_index=False оставляет city обычной колонкой. Не перечисляйте города вручную: набор городов определяется входом.",
+          "code": "summary = orders.groupby(\"city\", as_index=False)[\"revenue\"].sum()"
+        },
+        {
+          "title": "Контракт результата",
+          "text": "Верните ровно city и revenue. Сортировка: revenue по убыванию, при равенстве city по алфавиту. Индекс не важен. Небольшая погрешность float допустима, но округлять каждую позицию до целого нельзя. Повторяющиеся строки — отдельные позиции и учитываются.",
+          "code": "summary = summary.sort_values(\n    [\"revenue\", \"city\"], ascending=[False, True]\n).reset_index(drop=True)"
+        },
+        {
+          "title": "Несколько метрик",
+          "text": "Именованная агрегация задаёт читаемые имена результата. size считает строки, count — непустые значения, nunique — разные значения. Для числа заказов используйте уникальный order_id, если заказ состоит из нескольких позиций.",
+          "code": "report = orders.groupby(\"city\", as_index=False).agg(\n    revenue=(\"revenue\", \"sum\"),\n    line_items=(\"revenue\", \"size\"),\n)"
+        }
+      ],
+      "challengeIds": [
+        "revenue-city",
+        "aov",
+        "customer-summary"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "python-start-q1",
+      "version": 1,
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "prompt": "Что напечатает print(3 * 250)?",
+      "options": [
+        "3250",
+        "750",
+        "3 * 250"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Умножение чисел не склеивает их запись.",
+        "Оператор * умножает два числа: 3 × 250 = 750.",
+        "Кавычек нет: Python вычисляет выражение."
+      ],
+      "example": "print(3 * 250)  # 750"
+    },
+    {
+      "id": "python-start-q2",
+      "version": 1,
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "prompt": "Что делает revenue = 100?",
+      "options": [
+        "Сравнивает значения",
+        "Печатает 100",
+        "Сохраняет 100 под именем revenue"
+      ],
+      "correct": 2,
+      "explanations": [
+        "Для сравнения используют ==.",
+        "Для вывода нужен print().",
+        "Один знак = присваивает значение имени."
+      ],
+      "example": "revenue = 100\nprint(revenue)"
+    },
+    {
+      "id": "python-start-q3",
+      "version": 1,
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "prompt": "Как преобразовать строку '19.90' в число?",
+      "options": [
+        "float('19.90')",
+        "int('19.90')",
+        "str('19.90')"
+      ],
+      "correct": 0,
+      "explanations": [
+        "float понимает строковую запись дробного числа.",
+        "int не разбирает строку с десятичной точкой: возникнет ValueError.",
+        "str оставляет значение текстом."
+      ],
+      "example": "price = float('19.90')"
+    },
+    {
+      "id": "python-start-q4",
+      "version": 1,
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "prompt": "Какой тип у True?",
+      "options": [
+        "str",
+        "bool",
+        "None"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Строка 'True' требует кавычек.",
+        "True и False — два булевых значения.",
+        "None — отдельное значение отсутствия."
+      ],
+      "example": "print(type(True))  # bool"
+    },
+    {
+      "id": "python-start-q5",
+      "version": 1,
+      "lessonId": "python-start",
+      "topic": "Python Basics",
+      "prompt": "Что означает # в начале строки?",
+      "options": [
+        "Комментарий",
+        "Ошибка",
+        "Команду вывода"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Комментарий объясняет код и не исполняется.",
+        "Комментарии допустимы в Python.",
+        "Для вывода вызывают print()."
+      ],
+      "example": "# Revenue before returns\nrevenue = 3 * 250"
+    },
+    {
+      "id": "functions-q1",
+      "version": 1,
+      "lessonId": "functions",
+      "topic": "Functions",
+      "prompt": "Что возвращает функция без return?",
+      "options": [
+        "Последний результат",
+        "None",
+        "0"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Python не возвращает последнее выражение автоматически.",
+        "Без return функция возвращает None.",
+        "Ноль нужно вернуть явно."
+      ],
+      "example": "def f():\n    print(5)\nprint(f())  # 5, затем None"
+    },
+    {
+      "id": "functions-q2",
+      "version": 1,
+      "lessonId": "functions",
+      "topic": "Functions",
+      "prompt": "Как сравнить переменную value с None?",
+      "options": [
+        "value is None",
+        "value = None",
+        "value > None"
+      ],
+      "correct": 0,
+      "explanations": [
+        "None — одиночный объект, здесь уместно is.",
+        "Присваивание не проверяет условие.",
+        "У None нет такого порядка сравнения с числами."
+      ],
+      "example": "if value is None:\n    print('missing')"
+    },
+    {
+      "id": "functions-q3",
+      "version": 1,
+      "lessonId": "functions",
+      "topic": "Functions",
+      "prompt": "Что произойдёт при 10 / 0?",
+      "options": [
+        "Получится 0",
+        "Получится None",
+        "ZeroDivisionError"
+      ],
+      "correct": 2,
+      "explanations": [
+        "Деление на ноль не даёт ноль.",
+        "Python не заменяет арифметические ошибки на None.",
+        "Проверьте знаменатель перед делением."
+      ],
+      "example": "rate = purchases / visits if visits else 0.0"
+    },
+    {
+      "id": "functions-q4",
+      "version": 1,
+      "lessonId": "functions",
+      "topic": "Functions",
+      "prompt": "В первый день 1/2, во второй 9/98 покупок. Общая конверсия?",
+      "options": [
+        "Среднее 50% и 9.18%",
+        "10 / 100 = 10%",
+        "50%"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Дни имеют разный трафик: простое среднее искажает общий результат.",
+        "Сначала суммируем покупки и посещения, затем делим.",
+        "Первый день не представляет весь период."
+      ],
+      "example": "rate = (1 + 9) / (2 + 98)"
+    },
+    {
+      "id": "functions-q5",
+      "version": 1,
+      "lessonId": "functions",
+      "topic": "Functions",
+      "prompt": "Какую ошибку ожидаем от float('unknown')?",
+      "options": [
+        "KeyError",
+        "ValueError",
+        "IndexError"
+      ],
+      "correct": 1,
+      "explanations": [
+        "KeyError связан с отсутствующим ключом.",
+        "Тип str допустим, но значение не является числовой записью.",
+        "IndexError связан с выходом за границы последовательности."
+      ],
+      "example": "try:\n    float('unknown')\nexcept ValueError:\n    print('invalid price')"
+    },
+    {
+      "id": "pandas-intro-q1",
+      "version": 1,
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "prompt": "Что возвращает df['price']?",
+      "options": [
+        "DataFrame",
+        "Series",
+        "Список"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Для DataFrame передайте список имён: df[['price']].",
+        "Выбор одной колонки строкой возвращает Series.",
+        "Series хранит индекс и отличается от списка."
+      ],
+      "example": "series = df['price']\ntable = df[['price']]"
+    },
+    {
+      "id": "pandas-intro-q2",
+      "version": 1,
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "prompt": "У таблицы shape == (30, 4). Что это значит?",
+      "options": [
+        "30 колонок, 4 строки",
+        "30 строк, 4 колонки",
+        "120 строк"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Порядок shape: сначала строки.",
+        "Первое число — строки, второе — колонки.",
+        "Произведение — число ячеек, не строк."
+      ],
+      "example": "rows, columns = df.shape"
+    },
+    {
+      "id": "pandas-intro-q3",
+      "version": 1,
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "prompt": "Как получить таблицу только city и price?",
+      "options": [
+        "df['city', 'price']",
+        "df[['city', 'price']]",
+        "df['city'] + df['price']"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Кортеж внутри [] обычно ищет один составной ключ.",
+        "Список имён выбирает несколько колонок.",
+        "Это сложение Series, не выбор колонок."
+      ],
+      "example": "result = df[['city', 'price']].copy()"
+    },
+    {
+      "id": "pandas-intro-q4",
+      "version": 1,
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "prompt": "head() выглядит правильно. Все данные проверены?",
+      "options": [
+        "Да",
+        "Нет, это лишь первые строки"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Ошибки могут находиться за пределами preview.",
+        "Проверьте dtypes, пропуски, диапазоны и дубликаты на всей таблице."
+      ],
+      "example": "print(df.isna().sum())\nprint(df.dtypes)"
+    },
+    {
+      "id": "pandas-intro-q5",
+      "version": 1,
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "prompt": "Возник KeyError: 'Price'. Что проверить сначала?",
+      "options": [
+        "df.columns",
+        "Перезапустить компьютер",
+        "Умножить таблицу на 2"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Проверьте точное имя, регистр и пробелы в названии колонки.",
+        "Перезапуск не исправит имя колонки.",
+        "Арифметика не исправляет отсутствующий ключ."
+      ],
+      "example": "print(df.columns.tolist())"
+    },
+    {
+      "id": "pandas-filtering-q1",
+      "version": 1,
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "prompt": "Как получить строки df, где price > 100?",
+      "options": [
+        "df['price'] > 100",
+        "df[df['price'] > 100]",
+        "df['price' > 100]"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Это булева Series, а не отфильтрованный DataFrame. Передайте маску внутрь df[...].",
+        "Сравнение создаёт маску, а внешние [] выбирают строки, где она True.",
+        "Здесь Python пытается сравнить текст 'price' с числом, а не значения колонки."
+      ],
+      "example": "mask = df['price'] > 100\nresult = df[mask]"
+    },
+    {
+      "id": "pandas-filtering-q2",
+      "version": 1,
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "prompt": "Как объединить две маски условием И?",
+      "options": [
+        "and",
+        "& со скобками",
+        "+"
+      ],
+      "correct": 1,
+      "explanations": [
+        "and пытается получить одно булево значение всей Series и вызывает ошибку.",
+        "& выполняет поэлементное И; скобки защищают приоритет сравнений.",
+        "Сложение не выражает контракт фильтрации."
+      ],
+      "example": "df[(df['price'] > 100) & (df['quantity'] >= 2)]"
+    },
+    {
+      "id": "pandas-filtering-q3",
+      "version": 1,
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "prompt": "Цена равна 100. Пройдёт ли строка условие price > 100?",
+      "options": [
+        "Да",
+        "Нет"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Строгое > не включает равенство.",
+        "Для включения границы нужен >=."
+      ],
+      "example": "print(100 > 100)  # False"
+    },
+    {
+      "id": "pandas-filtering-q4",
+      "version": 1,
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "prompt": "Как выбрать строки по позициям 0 и 2?",
+      "options": [
+        "df.iloc[[0, 2]]",
+        "df.loc[0:2]",
+        "df[0, 2]"
+      ],
+      "correct": 0,
+      "explanations": [
+        "iloc выбирает по целочисленным позициям, передаём список.",
+        "loc работает с метками и срез включает границы; это другое условие.",
+        "Так pandas ищет ключ колонки, а не две позиции строк."
+      ],
+      "example": "result = df.iloc[[0, 2]]"
+    },
+    {
+      "id": "pandas-filtering-q5",
+      "version": 1,
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "prompt": "Почему df.iloc[[1, 3]] — плохое решение задачи о дорогих заказах?",
+      "options": [
+        "iloc запрещён",
+        "На другой таблице дорогие заказы будут в других строках",
+        "Он всегда сортирует"
+      ],
+      "correct": 1,
+      "explanations": [
+        "iloc допустим, если задача именно о позициях.",
+        "Решение должно зависеть от значений price, а не запомненных номеров.",
+        "iloc сохраняет указанный порядок и не сортирует по цене."
+      ],
+      "example": "result = df.loc[df['price'] > 100]"
+    },
+    {
+      "id": "groupby-q1",
+      "version": 1,
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "prompt": "Как вычислить выручку строки?",
+      "options": [
+        "price + quantity",
+        "price * quantity",
+        "price / quantity"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Цена и количество имеют разные единицы, складывать их бессмысленно.",
+        "EUR/ед. × ед. = EUR.",
+        "Деление не даёт выручку."
+      ],
+      "example": "df.assign(revenue=df.quantity * df.price)"
+    },
+    {
+      "id": "groupby-q2",
+      "version": 1,
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "prompt": "Зачем as_index=False в groupby?",
+      "options": [
+        "Чтобы city остался колонкой",
+        "Чтобы убрать пропуски",
+        "Чтобы запретить сортировку"
+      ],
+      "correct": 0,
+      "explanations": [
+        "Ключ группировки будет обычной колонкой результата.",
+        "Правила пропусков задаются отдельно.",
+        "as_index не запрещает sort_values."
+      ],
+      "example": "df.groupby('city', as_index=False).revenue.sum()"
+    },
+    {
+      "id": "groupby-q3",
+      "version": 1,
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "prompt": "Что делает count() в группе?",
+      "options": [
+        "Считает все строки, включая NaN",
+        "Считает непустые значения",
+        "Суммирует числа"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Для всех строк используют size().",
+        "count исключает пропуски в выбранной колонке.",
+        "Сумму считает sum()."
+      ],
+      "example": "df.groupby('city').price.count()"
+    },
+    {
+      "id": "groupby-q4",
+      "version": 1,
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "prompt": "Как сортировать revenue вниз, city вверх?",
+      "options": [
+        "ascending=True",
+        "ascending=[False, True]",
+        "ascending=[True, False]"
+      ],
+      "correct": 1,
+      "explanations": [
+        "Один True сортирует обе колонки вверх.",
+        "Флаги соответствуют порядку ['revenue', 'city'].",
+        "Это противоположные направления."
+      ],
+      "example": "df.sort_values(['revenue', 'city'], ascending=[False, True])"
+    },
+    {
+      "id": "groupby-q5",
+      "version": 1,
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "prompt": "Почему assign() удобен в функции задачи?",
+      "options": [
+        "Возвращает новую таблицу",
+        "Меняет df всегда",
+        "Запрещает арифметику"
+      ],
+      "correct": 0,
+      "explanations": [
+        "assign создаёт результат, сохраняя исходную таблицу.",
+        "Прямое df['x'] = ... меняет вход; assign возвращает новый DataFrame.",
+        "assign принимает вычисленные Series."
+      ],
+      "example": "result = df.assign(revenue=df.quantity * df.price)"
+    }
+  ],
+  "challenges": [
+    {
+      "id": "filter-orders",
+      "version": 1,
+      "title": "Отберите крупные покупки",
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "filter_orders",
+      "functionSignature": "def filter_orders(df: pd.DataFrame)",
+      "description": "Верните все строки, где price > 100 и quantity >= 2. Сохраните колонки и исходный порядок подходящих строк. Не изменяйте df. Повторяющиеся позиции учитываются отдельно.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "DataFrame: city, quantity, price",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def filter_orders(df):\n    # Постройте маску и верните подходящие строки\n    return df\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Условие проверяется для каждой строки.",
+        "Объедините сравнения оператором &; каждое заключите в скобки.",
+        "Передайте маску в df.loc[mask] и верните копию выбранных строк."
+      ],
+      "solution": "def filter_orders(df):\n    return df.loc[(df.price > 100) & (df.quantity >= 2)].copy()\n",
+      "explanation": "Передайте маску в df.loc[mask] и верните копию выбранных строк.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "revenue-city",
+      "version": 1,
+      "title": "Calculate revenue by city",
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "revenue_by_city",
+      "functionSignature": "def revenue_by_city(df: pd.DataFrame)",
+      "description": "Рассчитайте revenue = quantity × price для каждой позиции, затем общую выручку каждого города. Верните city, revenue. Сортируйте по revenue убывающе, при равенстве по city возрастающе. Повторяющиеся строки — отдельные позиции. Пропусков нет; df не изменяйте.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "DataFrame: city (string), revenue (numeric, EUR)",
+      "ordering": "revenue ↓, при равенстве city ↑; индекс игнорируется.",
+      "immutable": true,
+      "starterCode": "def revenue_by_city(df):\n    # 1. Вычислите revenue\n    # 2. Сгруппируйте по city\n    # 3. Отсортируйте результат\n    return df\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Сначала получите выручку каждой позиции, затем суммируйте внутри городов.",
+        "Используйте assign(), groupby(..., as_index=False) и sum().",
+        "groupby('city') использует все города входа. Затем sort_values(['revenue', 'city'], ascending=[False, True])."
+      ],
+      "solution": "def revenue_by_city(df):\n    return (df.assign(revenue=df.quantity * df.price)\n        .groupby('city', as_index=False).revenue.sum()\n        .sort_values(['revenue', 'city'], ascending=[False, True])\n        .reset_index(drop=True))\n",
+      "explanation": "groupby('city') использует все города входа. Затем sort_values(['revenue', 'city'], ascending=[False, True]).",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "select-columns",
+      "version": 1,
+      "title": "Соберите preview каталога",
+      "lessonId": "pandas-intro",
+      "topic": "Pandas",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Beginner",
+      "function": "select_columns",
+      "functionSignature": "def select_columns(df: pd.DataFrame)",
+      "description": "Верните только колонки city и price, именно в таком порядке. Строки и значения сохраняются. Исходный df не изменяйте.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "DataFrame: city, price",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def select_columns(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Передайте имена нужных колонок списком.",
+        "Для нескольких колонок нужны двойные квадратные скобки.",
+        "df[['city', 'price']].copy() сохраняет порядок и отделяет результат."
+      ],
+      "solution": "def select_columns(df):\n    return df[['city', 'price']].copy()\n",
+      "explanation": "df[['city', 'price']].copy() сохраняет порядок и отделяет результат.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "sort-orders",
+      "version": 1,
+      "title": "Самые дорогие позиции",
+      "lessonId": "pandas-filtering",
+      "topic": "Pandas",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "sort_orders",
+      "functionSignature": "def sort_orders(df: pd.DataFrame)",
+      "description": "Отсортируйте все строки по price убывающе, при одинаковой цене — city по алфавиту. Сохраните все колонки. Не изменяйте вход.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "DataFrame: city, quantity, price",
+      "ordering": "price ↓, city ↑; индекс игнорируется.",
+      "immutable": true,
+      "starterCode": "def sort_orders(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Нужна сортировка, а не фильтрация.",
+        "sort_values принимает список колонок и список направлений.",
+        "Используйте ['price', 'city'] и ascending=[False, True]."
+      ],
+      "solution": "def sort_orders(df):\n    return df.sort_values(['price', 'city'], ascending=[False, True])\n",
+      "explanation": "Используйте ['price', 'city'] и ascending=[False, True].",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "aov",
+      "version": 1,
+      "title": "Средний чек без округления",
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "library": "pandas",
+      "kind": "scalar",
+      "difficulty": "Easy",
+      "function": "average_order_value",
+      "functionSignature": "def average_order_value(df: pd.DataFrame)",
+      "description": "Здесь каждая строка — отдельный заказ из одного товара. Посчитайте общую выручку quantity × price, затем разделите на число заказов. Таблица непустая. Не округляйте результат и не изменяйте df.",
+      "inputSchema": {
+        "city": "string · город, без пропусков",
+        "quantity": "integer > 0 · количество единиц",
+        "price": "float >= 0 · цена единицы, EUR"
+      },
+      "outputSchema": "float · средний чек, EUR",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def average_order_value(df):\n    return 0.0\n",
+      "visibleDataset": [
+        {
+          "city": "Riga",
+          "quantity": 2,
+          "price": 120.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 1,
+          "price": 240.0
+        },
+        {
+          "city": "Riga",
+          "quantity": 3,
+          "price": 80.0
+        },
+        {
+          "city": "Vilnius",
+          "quantity": 2,
+          "price": 150.0
+        },
+        {
+          "city": "Tallinn",
+          "quantity": 4,
+          "price": 25.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "unseen-categories",
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "Сумма цен не учитывает количество.",
+        "Посчитайте sum(quantity * price).",
+        "Разделите общую выручку на len(df). Это AOV только при одной строке на заказ."
+      ],
+      "solution": "def average_order_value(df):\n    return float((df.quantity * df.price).sum() / len(df))\n",
+      "explanation": "Разделите общую выручку на len(df). Это AOV только при одной строке на заказ.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "conversion",
+      "version": 1,
+      "title": "Конверсия магазина",
+      "lessonId": "functions",
+      "topic": "Functions",
+      "library": "Python",
+      "kind": "scalar",
+      "difficulty": "Easy",
+      "function": "conversion_rate",
+      "functionSignature": "def conversion_rate(df: pd.DataFrame)",
+      "description": "Верните общую конверсию как долю от 0 до 1: сумма purchases / сумма visits. Если сумма visits равна 0, верните 0.0. Одна строка — день; целые значения неотрицательные, purchases <= visits. df не изменяйте.",
+      "inputSchema": {
+        "visits": "integer >= 0 · посещения за день",
+        "purchases": "integer >= 0 · покупки за день"
+      },
+      "outputSchema": "float · доля покупателей",
+      "ordering": "Порядок строк входа сохраняется; индекс не проверяется.",
+      "immutable": true,
+      "starterCode": "def conversion_rate(df):\n    visits = df['visits'].sum()\n    purchases = df['purchases'].sum()\n    # Обработайте нулевой знаменатель\n    return 0.0\n",
+      "visibleDataset": [
+        {
+          "visits": 10,
+          "purchases": 5
+        },
+        {
+          "visits": 1000,
+          "purchases": 50
+        },
+        {
+          "visits": 0,
+          "purchases": 0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "shuffled",
+        "one-group",
+        "larger",
+        "duplicates"
+      ],
+      "hints": [
+        "Нужна общая доля, а не среднее дневных долей.",
+        "Сначала суммируйте visits и purchases.",
+        "Если visits == 0, верните 0.0; иначе purchases / visits."
+      ],
+      "solution": "def conversion_rate(df):\n    visits = df.visits.sum()\n    return float(df.purchases.sum() / visits) if visits else 0.0\n",
+      "explanation": "Если visits == 0, верните 0.0; иначе purchases / visits.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    },
+    {
+      "id": "customer-summary",
+      "version": 1,
+      "title": "Покупатели и повторные заказы",
+      "lessonId": "groupby",
+      "topic": "Data Transformation",
+      "library": "pandas",
+      "kind": "dataframe",
+      "difficulty": "Easy",
+      "function": "customer_summary",
+      "functionSignature": "def customer_summary(df: pd.DataFrame)",
+      "description": "Одна строка — позиция заказа. Для каждого customer_id верните количество уникальных order_id в orders и сумму quantity × price в revenue. Сортируйте customer_id по возрастанию. Строки не удаляйте, df не изменяйте.",
+      "inputSchema": {
+        "order_id": "integer · заказ; может встречаться в нескольких позициях",
+        "customer_id": "integer · покупатель",
+        "quantity": "integer > 0 · количество",
+        "price": "float >= 0 · EUR за единицу"
+      },
+      "outputSchema": "DataFrame: customer_id, orders, revenue",
+      "ordering": "customer_id ↑; индекс игнорируется.",
+      "immutable": true,
+      "starterCode": "def customer_summary(df):\n    return df\n",
+      "visibleDataset": [
+        {
+          "order_id": 1,
+          "customer_id": 10,
+          "quantity": 2,
+          "price": 20.0
+        },
+        {
+          "order_id": 1,
+          "customer_id": 10,
+          "quantity": 1,
+          "price": 15.0
+        },
+        {
+          "order_id": 2,
+          "customer_id": 20,
+          "quantity": 3,
+          "price": 12.0
+        },
+        {
+          "order_id": 3,
+          "customer_id": 10,
+          "quantity": 2,
+          "price": 10.0
+        }
+      ],
+      "visibleTests": [
+        "Тип, значения, колонки и порядок согласно контракту",
+        "Входная таблица не изменена"
+      ],
+      "hiddenDatasetGenerators": [
+        "shuffled",
+        "one-group",
+        "decimals",
+        "duplicates",
+        "larger"
+      ],
+      "hints": [
+        "У одного заказа может быть несколько позиций.",
+        "Для заказов нужен nunique, для выручки sum.",
+        "Создайте revenue через assign и используйте именованную агрегацию по customer_id."
+      ],
+      "solution": "def customer_summary(df):\n    return (df.assign(revenue=df.quantity * df.price)\n        .groupby('customer_id', as_index=False)\n        .agg(orders=('order_id', 'nunique'), revenue=('revenue', 'sum'))\n        .sort_values('customer_id'))\n",
+      "explanation": "Создайте revenue через assign и используйте именованную агрегацию по customer_id.",
+      "timeLimit": 12,
+      "memoryLimit": 256,
+      "rtol": 1e-06,
+      "atol": 1e-08
+    }
+  ],
+  "projects": [],
+  "exams": []
+}

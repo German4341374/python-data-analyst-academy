@@ -1,0 +1,97 @@
+name: python-data-analyst-academy
+services:
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:${ACADEMY_PORT:-8080}:80"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [web]
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE, SETGID, SETUID, CHOWN]
+  backend:
+    build:
+      context: .
+      target: backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://academy:${POSTGRES_PASSWORD:-local-development-only}@postgres:5432/academy
+      RUNNER_URL: http://broker:8001
+      RUNNER_TOKEN: ${RUNNER_TOKEN:-local-runner-development-only}
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    networks: [web, database, execution]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 512m
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/catalog')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: academy
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+      POSTGRES_DB: academy
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    networks: [database]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U academy -d academy"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+  # Trusted broker only. Learner containers NEVER receive this socket.
+  broker:
+    build:
+      context: .
+      target: broker
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN:-local-runner-development-only}
+      SANDBOX_IMAGE: academy-sandbox:0.1.0
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    depends_on:
+      sandbox-image:
+        condition: service_completed_successfully
+    networks: [execution]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    mem_limit: 384m
+    pids_limit: 64
+    restart: unless-stopped
+  # Registers runtime image; each execution gets a new container.
+  sandbox-image:
+    image: academy-sandbox:0.1.0
+    build:
+      context: .
+      dockerfile: runner/Dockerfile
+    entrypoint: ["python", "-c", "import pandas, numpy, matplotlib; print('Sandbox image ready')"]
+    network_mode: none
+    read_only: true
+    tmpfs: [/tmp]
+    user: "65534:65534"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    pids_limit: 32
+networks:
+  web:
+  database:
+    internal: true
+  execution:
+    internal: true
+volumes:
+  postgres-data:
